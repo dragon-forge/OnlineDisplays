@@ -1,13 +1,14 @@
 package org.zeith.onlinedisplays.util;
 
 import com.google.common.base.Suppliers;
-import org.zeith.onlinedisplays.client.texture.IDisplayableTexture;
 import org.zeith.onlinedisplays.level.LevelImageStorage;
+import org.zeith.onlinedisplays.util.io.IFileContainer;
 
 import java.io.*;
 import java.util.function.Supplier;
 
 public class ImageData
+		implements IFileContainer
 {
 	protected final String fileName;
 	protected final byte[] data;
@@ -49,5 +50,29 @@ public class ImageData
 	public String getFileName()
 	{
 		return fileName;
+	}
+	
+	@Override
+	public boolean exists()
+	{
+		return data != null && data.length > 0;
+	}
+	
+	@Override
+	public String getName()
+	{
+		return fileName;
+	}
+	
+	@Override
+	public InputStream openInput() throws IOException
+	{
+		return new ByteArrayInputStream(data);
+	}
+	
+	@Override
+	public long length()
+	{
+		return data.length;
 	}
 }

@@ -211,6 +211,13 @@ public class TileDisplay
 		super.onDataPacket(net, packet);
 	}
 	
+	@Override
+	@OnlyIn(Dist.CLIENT)
+	public double getViewDistance()
+	{
+		return 10000;
+	}
+	
 	public static class DisplayMatrix
 			implements IAutoNBTSerializable
 	{

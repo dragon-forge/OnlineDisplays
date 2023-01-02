@@ -12,7 +12,8 @@ import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.zeith.hammerlib.core.adapter.LanguageAdapter;
-import org.zeith.onlinedisplays.ext.ExtWebP;
+import org.zeith.onlinedisplays.ext.gif.ExtGIF;
+import org.zeith.onlinedisplays.ext.webp.ExtWebP;
 import org.zeith.onlinedisplays.proxy.ClientODProxy;
 import org.zeith.onlinedisplays.proxy.CommonODProxy;
 import org.zeith.onlinedisplays.util.ExtensionParser;
@@ -37,8 +38,8 @@ public class OnlineDisplays
 		LanguageAdapter.registerMod(MOD_ID);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
 		
-		// Add support for WebP
-		InterModComms.sendTo(MOD_ID, "add_ext", ExtWebP::new);
+		InterModComms.sendTo(MOD_ID, "add_ext", ExtWebP::new); // Add support for WebP
+		InterModComms.sendTo(MOD_ID, "add_ext", ExtGIF::new); // Add support for GIF
 	}
 	
 	private void processIMC(InterModProcessEvent e)

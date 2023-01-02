@@ -1,4 +1,4 @@
-package org.zeith.onlinedisplays.ext;
+package org.zeith.onlinedisplays.ext.webp;
 
 import org.zeith.onlinedisplays.OnlineDisplays;
 import org.zeith.onlinedisplays.util.ExtensionParser;
@@ -31,7 +31,7 @@ public class ExtWebP
 	}
 	
 	@Override
-	public ImageData toPNG(ImageData raw)
+	public ImageData convert(ImageData raw)
 	{
 		File webpFile = null;
 		try
@@ -50,6 +50,6 @@ public class ExtWebP
 			e.printStackTrace();
 		}
 		if(webpFile != null) webpFile.delete();
-		return super.toPNG(raw);
+		return super.convert(raw);
 	}
 }
