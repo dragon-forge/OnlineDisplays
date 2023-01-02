@@ -113,9 +113,11 @@ public class DisplayISTER
 			IVertexBuilder builder = src.getBuffer(type);
 			
 			boolean gui = tt == ItemCameraTransforms.TransformType.GUI;
+			boolean thirdPerson = tt == ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND || tt == ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
+			
 			float normalX = 0.0F;
 			float normalY = gui ? -1.0F : 0.0F;
-			float normalZ = gui ? 0.0F : -1.0F;
+			float normalZ = gui ? 0.0F : (thirdPerson ? 1.0F : -1.0F);
 			
 			float w = meta.textureWidth, h = meta.textureHeight;
 			
