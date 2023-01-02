@@ -1,0 +1,18 @@
+
+block.onlinedisplays.display=Online Display
+
+gui.onlinedisplays.apply=Apply
+gui.onlinedisplays.aspect=Aspect Ratio
+gui.onlinedisplays.local_file=Select Local File...
+gui.onlinedisplays.select_file=Select a file
+gui.onlinedisplays.select=Select
+gui.onlinedisplays.cancel=Cancel
+gui.onlinedisplays.translate_x=Offset (X)
+gui.onlinedisplays.translate_y=Offset (Y)
+gui.onlinedisplays.translate_z=Offset (Z)
+gui.onlinedisplays.rotate_x=Rotation (X)
+gui.onlinedisplays.rotate_y=Rotation (Y)
+gui.onlinedisplays.rotate_z=Rotation (Z)
+gui.onlinedisplays.scale_x=Scale (X)
+gui.onlinedisplays.scale_y=Scale (Y)
+gui.onlinedisplays.url=Image URL

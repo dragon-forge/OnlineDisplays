@@ -1,0 +1,253 @@
+package org.zeith.onlinedisplays.tiles;
+
+import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import org.zeith.hammerlib.api.io.IAutoNBTSerializable;
+import org.zeith.hammerlib.api.io.NBTSerializable;
+import org.zeith.hammerlib.net.Network;
+import org.zeith.hammerlib.net.properties.PropertyBool;
+import org.zeith.hammerlib.net.properties.PropertyString;
+import org.zeith.hammerlib.tiles.TileSyncableTickable;
+import org.zeith.hammerlib.util.java.DirectStorage;
+import org.zeith.hammerlib.util.java.net.HttpRequest;
+import org.zeith.onlinedisplays.OnlineDisplays;
+import org.zeith.onlinedisplays.client.texture.IDisplayableTexture;
+import org.zeith.onlinedisplays.init.TileOD;
+import org.zeith.onlinedisplays.level.LevelImageStorage;
+import org.zeith.onlinedisplays.net.PacketClearRequestFlag;
+import org.zeith.onlinedisplays.net.PacketRequestDisplaySync;
+import org.zeith.onlinedisplays.util.ImageData;
+import org.zeith.onlinedisplays.util.NetUtil;
+
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+
+public class TileDisplay
+		extends TileSyncableTickable
+{
+	@NBTSerializable
+	private String url = "";
+	
+	@NBTSerializable
+	private String fileName = "";
+	
+	@NBTSerializable
+	private boolean loaded;
+	
+	@NBTSerializable
+	private boolean emissive;
+	
+	@NBTSerializable
+	public final DisplayMatrix matrix = new DisplayMatrix();
+	
+	@NBTSerializable
+	private String dataHash = "";
+	
+	public final PropertyString imageURL = new PropertyString(DirectStorage.create($ -> url = $, () -> url));
+	public final PropertyString imageHash = new PropertyString(DirectStorage.create($ -> dataHash = $, () -> dataHash));
+	public final PropertyBool isLoaded = new PropertyBool(DirectStorage.create($ -> loaded = $, () -> loaded));
+	public final PropertyBool isEmissive = new PropertyBool(DirectStorage.create($ -> emissive = $, () -> emissive));
+	
+	public boolean isSynced;
+	
+	public IDisplayableTexture image;
+	
+	public TileDisplay()
+	{
+		super(TileOD.DISPLAY);
+		dispatcher.registerProperty("url", imageURL);
+		dispatcher.registerProperty("hash", imageHash);
+		dispatcher.registerProperty("loaded", isLoaded);
+		dispatcher.registerProperty("emissive", isEmissive);
+	}
+	
+	@Override
+	public void update()
+	{
+		if(isOnClient())
+		{
+			if(!isSynced)
+			{
+				Network.sendToServer(new PacketRequestDisplaySync(this));
+				isSynced = true;
+			} else
+			{
+				if(image == null || !Objects.equals(image.getHash(), imageHash.get()))
+				{
+					image = OnlineDisplays.PROXY.resolveTexture(this);
+				}
+			}
+
+//			Network.sendToServer(new PacketRequestImageData(imageHash.get()));
+		}
+		
+		if(isOnServer() && atTickRate(20))
+		{
+			MinecraftServer server = level.getServer();
+			if(server != null)
+			{
+				SUpdateTileEntityPacket pkt = getUpdatePacket();
+				server.getPlayerList().broadcastAll(pkt, level.dimension());
+			}
+		}
+	}
+	
+	public void updateURL(String url)
+	{
+		if(url == null) url = "";
+		
+		if(Objects.equals(imageURL.get(), url))
+			return;
+		
+		this.imageURL.set(url);
+		
+		if(url.startsWith("local/"))
+		{
+			isLoaded.set(false);
+			imageHash.set(url.substring(6));
+			return;
+		}
+		
+		if(!level.isClientSide)
+		{
+			// Server-side logic
+			isLoaded.set(false);
+			
+			imageHash.set("");
+			
+			if(!imageURL.get().isEmpty())
+				CompletableFuture.runAsync(() ->
+				{
+					byte[] data = null;
+					String fileName = null;
+					try
+					{
+						HttpRequest req = HttpRequest.get(imageURL.get())
+								.userAgent("MinecraftServer " + level)
+								.accept("image/*");
+						
+						fileName = NetUtil.getFileName(req);
+						int code = req.code();
+						
+						OnlineDisplays.LOG.info("GET " + req.url() + " | " + code + " => " + fileName);
+						
+						if(code / 100 == 2)
+							data = req.bytes();
+					} catch(Throwable e)
+					{
+						e.printStackTrace();
+						fileName = null;
+						data = null;
+					}
+					
+					updateCache(data, fileName);
+				});
+		}
+	}
+	
+	public void setLocalImage(byte[] newValue, String fileName, Object sender)
+	{
+		isLoaded.set(newValue != null && newValue.length > 0);
+		
+		if(newValue == null)
+		{
+			imageHash.set("");
+			return;
+		}
+		
+		ImageData id = new ImageData(fileName, newValue);
+		if(level instanceof ServerWorld)
+			LevelImageStorage.get((ServerWorld) level).save(id);
+		
+		String hash = id.getHash();
+		updateURL("local/" + hash);
+		imageHash.set(hash);
+		Network.sendToAll(new PacketClearRequestFlag(hash));
+		sync();
+		
+		OnlineDisplays.LOG.info("Uploaded " + fileName + " (" + hash + ") from " + sender);
+	}
+	
+	public void updateCache(byte[] newValue, String fileName)
+	{
+		isLoaded.set(newValue != null && newValue.length > 0);
+		
+		if(newValue == null)
+		{
+			imageHash.set("");
+			return;
+		}
+		
+		ImageData id = new ImageData(fileName, newValue);
+		if(level instanceof ServerWorld)
+			LevelImageStorage.get((ServerWorld) level).save(id);
+		
+		String hash = id.getHash();
+		imageHash.set(hash);
+		Network.sendToAll(new PacketClearRequestFlag(hash));
+		sync();
+		
+		OnlineDisplays.LOG.info("Downloaded " + fileName + " (" + hash + ")");
+	}
+	
+	@Override
+	public AxisAlignedBB getRenderBoundingBox()
+	{
+		return INFINITE_EXTENT_AABB;
+	}
+	
+	@Override
+	public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet)
+	{
+		if(OnlineDisplays.PROXY.isCurrentlyEditing(this))
+			return;
+		super.onDataPacket(net, packet);
+	}
+	
+	public static class DisplayMatrix
+			implements IAutoNBTSerializable
+	{
+		@NBTSerializable("sx")
+		public float scaleX = 1;
+		
+		@NBTSerializable("sy")
+		public float scaleY = 1;
+		
+		@NBTSerializable("tx")
+		public float translateX;
+		
+		@NBTSerializable("ty")
+		public float translateY;
+		
+		@NBTSerializable("tz")
+		public float translateZ;
+		
+		@NBTSerializable("rx")
+		public float rotateX;
+		
+		@NBTSerializable("ry")
+		public float rotateY;
+		
+		@NBTSerializable("rz")
+		public float rotateZ;
+		
+		@OnlyIn(Dist.CLIENT)
+		public void apply(MatrixStack pose)
+		{
+			pose.translate(translateX, translateY, translateZ);
+			
+			pose.mulPose(Vector3f.XP.rotationDegrees(rotateX));
+			pose.mulPose(Vector3f.YP.rotationDegrees(rotateY));
+			pose.mulPose(Vector3f.ZP.rotationDegrees(rotateZ));
+			
+			pose.scale(scaleX, scaleY, 1F);
+		}
+	}
+}

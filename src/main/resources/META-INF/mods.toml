@@ -1,0 +1,33 @@
+modLoader="javafml"
+loaderVersion="[36,)"
+issueTrackerURL="https://github.com/dragon-forge/OnlineDisplays/issues"
+license="All rights reserved"
+[[mods]]
+modId="onlinedisplays"
+version="${file.jarVersion}"
+displayName="Online Displays"
+updateJSONURL="http://dccg.herokuapp.com/api/fmluc/<CFID>"
+displayURL="http://dccg.herokuapp.com/api/fmlhp/<CFID>"
+authors="Zeitheron" #optional
+description='''
+Multi-line description
+of the mod!
+'''
+[[dependencies.onlinedisplays]]
+    modId="forge"
+    mandatory=true
+    versionRange="[36,)"
+    ordering="NONE" # NONE/BEFORE/AFTER
+    side="BOTH"
+[[dependencies.onlinedisplays]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.16.5]"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.onlinedisplays]]
+    modId="hammerlib"
+    mandatory=true
+    versionRange="[16.3.30,)"
+    ordering="NONE"
+    side="BOTH"

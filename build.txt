@@ -1,0 +1,26 @@
+# Mod Info
+mod_id=onlinedisplays
+archive_name=OnlineDisplays
+mod_name=Online Displays
+mod_version=16.1.1
+
+# Maven Info
+maven_group=org.zeith.onlinedisplays
+
+# MC Info
+mc_version=1.16.5
+forge_version=36.2.34
+hl_version=16.3.30
+
+# MCP Info
+mcp_ch=official
+mcp_vr=1.16.5
+
+# Misc Info
+java=1.8
+
+# Project ID on CurseForge
+cf_project=0
+
+# alpha, beta, release
+release_type=alpha

@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8.1",
+  "package": "org.zeith.onlinedisplays.mixins",
+  "refmap": "mixins.modid.refmap.json",
+  "target": "@env(DEFAULT)",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "DimensionSavedDataManagerAccessor"
+  ],
+  "client": [
+  ],
+  "server": [
+	]
+}
