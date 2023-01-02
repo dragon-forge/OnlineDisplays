@@ -15,6 +15,7 @@ import org.zeith.hammerlib.net.lft.TransportSessionBuilder;
 import org.zeith.onlinedisplays.OnlineDisplays;
 import org.zeith.onlinedisplays.client.texture.IDisplayableTexture;
 import org.zeith.onlinedisplays.init.BlocksOD;
+import org.zeith.onlinedisplays.mixins.ImageButtonAccessor;
 import org.zeith.onlinedisplays.net.*;
 import org.zeith.onlinedisplays.tiles.TileDisplay;
 
@@ -59,6 +60,8 @@ public class GuiDisplayConfig
 	// Scale
 	TextFieldWidget sx, sy;
 	
+	ImageButtonAccessor emissiveToggle;
+	
 	@Override
 	protected void init()
 	{
@@ -86,16 +89,19 @@ public class GuiDisplayConfig
 			tx = addWidget(new TextFieldWidget(font, guiLeft + xBase, guiTop + yBase, 40, 18, OnlineDisplays.gui("translate_x")));
 			tx.setMaxLength(10);
 			tx.setValue(pv);
+			tx.moveCursorToStart();
 			
 			pv = ty != null ? ty.getValue() : Float.toString(display.matrix.translateY);
 			ty = addWidget(new TextFieldWidget(font, guiLeft + xBase + 60, guiTop + yBase, 40, 18, OnlineDisplays.gui("translate_y")));
 			ty.setMaxLength(10);
 			ty.setValue(pv);
+			ty.moveCursorToStart();
 			
 			pv = tz != null ? tz.getValue() : Float.toString(display.matrix.translateZ);
 			tz = addWidget(new TextFieldWidget(font, guiLeft + xBase + 120, guiTop + yBase, 40, 18, OnlineDisplays.gui("translate_z")));
 			tz.setMaxLength(10);
 			tz.setValue(pv);
+			tz.moveCursorToStart();
 		}
 		
 		{
@@ -106,31 +112,36 @@ public class GuiDisplayConfig
 			rx = addWidget(new TextFieldWidget(font, guiLeft + xBase, guiTop + yBase, 40, 18, OnlineDisplays.gui("rotate_x")));
 			rx.setMaxLength(10);
 			rx.setValue(pv);
+			rx.moveCursorToStart();
 			
 			pv = ry != null ? ry.getValue() : Float.toString(display.matrix.rotateY);
 			ry = addWidget(new TextFieldWidget(font, guiLeft + xBase + 60, guiTop + yBase, 40, 18, OnlineDisplays.gui("rotate_y")));
 			ry.setMaxLength(10);
 			ry.setValue(pv);
+			ry.moveCursorToStart();
 			
 			pv = rz != null ? rz.getValue() : Float.toString(display.matrix.rotateZ);
 			rz = addWidget(new TextFieldWidget(font, guiLeft + xBase + 120, guiTop + yBase, 40, 18, OnlineDisplays.gui("rotate_z")));
 			rz.setMaxLength(10);
 			rz.setValue(pv);
+			rz.moveCursorToStart();
 		}
 		
 		{
-			int xBase = 38;
+			int xBase = 67;
 			int yBase = 118;
 			
 			pv = sx != null ? sx.getValue() : Float.toString(display.matrix.scaleX);
 			sx = addWidget(new TextFieldWidget(font, guiLeft + xBase, guiTop + yBase, 40, 18, OnlineDisplays.gui("scale_x")));
 			sx.setMaxLength(10);
 			sx.setValue(pv);
+			sx.moveCursorToStart();
 			
 			pv = sy != null ? sy.getValue() : Float.toString(display.matrix.scaleY);
 			sy = addWidget(new TextFieldWidget(font, guiLeft + xBase + 60, guiTop + yBase, 40, 18, OnlineDisplays.gui("scale_y")));
 			sy.setMaxLength(10);
 			sy.setValue(pv);
+			sy.moveCursorToStart();
 		}
 		
 		addButton(new Button(guiLeft + xSize - 80 - 6, guiTop + ySize - 26, 80, 20, OnlineDisplays.gui("apply"), btn -> applyChanges()));
@@ -147,6 +158,32 @@ public class GuiDisplayConfig
 			renderToolTip(mat, Arrays.asList(OnlineDisplays.gui("local_file").getVisualOrderText()), mouseX, mouseY, font);
 		}, OnlineDisplays.EMPTY_TXT
 		));
+		
+		emissiveToggle = (ImageButtonAccessor) addButton(new ImageButton(guiLeft + 7, guiTop + 117, 20, 20,
+				0, 0,
+				20,
+				OnlineDisplays.id("textures/gui/emissive.png"),
+				40,
+				40,
+				btn -> toggleEmissive(), (btn, mat, mouseX, mouseY) ->
+		{
+			renderToolTip(mat, Arrays.asList(OnlineDisplays.gui("emissive").getVisualOrderText()), mouseX, mouseY, font);
+		}, OnlineDisplays.EMPTY_TXT
+		));
+		updateEmissive();
+	}
+	
+	public void updateEmissive()
+	{
+		this.emissiveToggle.setXTexStart(display.isEmissive.get() ? 0 : 20);
+	}
+	
+	private void toggleEmissive()
+	{
+		boolean nv = !display.isEmissive.get();
+		display.isEmissive.set(nv);
+		Network.sendToServer(new PacketSetEmissiveFlag(display, nv));
+		updateEmissive();
 	}
 	
 	private void beginSelectingLocalFile()
@@ -158,7 +195,7 @@ public class GuiDisplayConfig
 					.setAcceptor(UploadLocalFileSession.class)
 					.build()
 					.sendToServer();
-		});
+		}, null);
 		
 		minecraft.pushGuiLayer(scr);
 	}

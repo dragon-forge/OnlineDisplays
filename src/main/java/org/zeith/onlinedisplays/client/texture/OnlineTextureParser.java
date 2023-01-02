@@ -53,13 +53,12 @@ public class OnlineTextureParser
 	
 	public static IDisplayableTexture getTextureByHash(String hash)
 	{
-		ImageData image = ClientImageStorage.load(hash);
-		if(image == null) return null;
-		
 		ResourceLocation tex = OnlineDisplays.id("downloaded/" + hash);
-		
 		IDisplayableTexture cachedTex = LOADED_TEXTURES.get(tex);
 		if(cachedTex != null) return cachedTex;
+		
+		ImageData image = ClientImageStorage.load(hash);
+		if(image == null) return null;
 		
 		TextureManager txm = Minecraft.getInstance().getTextureManager();
 		Texture tx = txm.getTexture(tex);

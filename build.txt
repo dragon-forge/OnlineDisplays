@@ -20,7 +20,7 @@ mcp_vr=1.16.5
 java=1.8
 
 # Project ID on CurseForge
-cf_project=0
+cf_project=785509
 
 # alpha, beta, release
 release_type=alpha

@@ -12,6 +12,10 @@ import org.zeith.onlinedisplays.tiles.TileDisplay;
 
 public class CommonODProxy
 {
+	public void construct()
+	{
+	}
+	
 	public IDisplayableTexture resolveTexture(TileDisplay display)
 	{
 		return null;

@@ -16,3 +16,4 @@ gui.onlinedisplays.rotate_z=Rotation (Z)
 gui.onlinedisplays.scale_x=Scale (X)
 gui.onlinedisplays.scale_y=Scale (Y)
 gui.onlinedisplays.url=Image URL
+gui.onlinedisplays.emissive=Toggle Emissive

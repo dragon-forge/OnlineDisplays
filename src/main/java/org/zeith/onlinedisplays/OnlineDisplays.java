@@ -35,6 +35,7 @@ public class OnlineDisplays
 	
 	public OnlineDisplays()
 	{
+		PROXY.construct();
 		LanguageAdapter.registerMod(MOD_ID);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
 		

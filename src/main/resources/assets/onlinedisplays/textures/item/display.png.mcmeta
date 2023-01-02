@@ -1,0 +1,12 @@
+{
+	"onlinedisplays:drawable_area": {
+		"x": 2,
+		"y": 4,
+		
+		"width": 12,
+		"height": 8,
+		
+		"tx_width": 16,
+		"tx_height": 16
+	}
+}

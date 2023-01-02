@@ -1,33 +1,39 @@
-modLoader="javafml"
-loaderVersion="[36,)"
-issueTrackerURL="https://github.com/dragon-forge/OnlineDisplays/issues"
-license="All rights reserved"
+modLoader = "javafml"
+loaderVersion = "[36,)"
+issueTrackerURL = "https://github.com/dragon-forge/OnlineDisplays/issues"
+license = "All rights reserved"
+
 [[mods]]
-modId="onlinedisplays"
-version="${file.jarVersion}"
-displayName="Online Displays"
-updateJSONURL="http://dccg.herokuapp.com/api/fmluc/<CFID>"
-displayURL="http://dccg.herokuapp.com/api/fmlhp/<CFID>"
-authors="Zeitheron" #optional
-description='''
-Multi-line description
-of the mod!
+modId = "onlinedisplays"
+version = "${file.jarVersion}"
+displayName = "Online Displays"
+updateJSONURL = "http://dccg.herokuapp.com/api/fmluc/785509"
+displayURL = "http://dccg.herokuapp.com/api/fmlhp/785509"
+authors = "Zeitheron" #optional
+
+description = '''
+This mod is intended for Creative Mode use, but can be also used in Survival Mode, if chosen to.
+Online Displays allows putting up an image, positioning, rotating and scaling it to your exact need.
+Additionally, the lighting of it may be disabled, essentially rendering it as "emissive*"
 '''
+
 [[dependencies.onlinedisplays]]
-    modId="forge"
-    mandatory=true
-    versionRange="[36,)"
-    ordering="NONE" # NONE/BEFORE/AFTER
-    side="BOTH"
+modId = "forge"
+mandatory = true
+versionRange = "[36,)"
+ordering = "NONE" # NONE/BEFORE/AFTER
+side = "BOTH"
+
 [[dependencies.onlinedisplays]]
-    modId="minecraft"
-    mandatory=true
-    versionRange="[1.16.5]"
-    ordering="NONE"
-    side="BOTH"
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.16.5]"
+ordering = "NONE"
+side = "BOTH"
+
 [[dependencies.onlinedisplays]]
-    modId="hammerlib"
-    mandatory=true
-    versionRange="[16.3.30,)"
-    ordering="NONE"
-    side="BOTH"
+modId = "hammerlib"
+mandatory = true
+versionRange = "[16.3.30,)"
+ordering = "NONE"
+side = "BOTH"

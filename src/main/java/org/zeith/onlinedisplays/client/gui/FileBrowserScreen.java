@@ -23,11 +23,13 @@ public class FileBrowserScreen
 	private File selectedFile, rootDirectory = new File(".");
 	private FileListWidget fileList;
 	private Consumer<File> onChosen;
+	private Runnable onCancelled;
 	
-	public FileBrowserScreen(Consumer<File> onChosen)
+	public FileBrowserScreen(Consumer<File> onChosen, Runnable onCancelled)
 	{
 		super(OnlineDisplays.EMPTY_TXT);
 		this.onChosen = onChosen;
+		this.onCancelled = onCancelled;
 	}
 	
 	public FileBrowserScreen withRootDirectory(File dir)
@@ -67,10 +69,14 @@ public class FileBrowserScreen
 		this.minecraft.popGuiLayer();
 		if(selectedFile != null)
 			onChosen.accept(selectedFile);
+		else if(onCancelled != null)
+			onCancelled.run();
 	}
 	
 	private void cancel()
 	{
+		if(onCancelled != null)
+			onCancelled.run();
 		this.minecraft.popGuiLayer();
 	}
 	
@@ -88,6 +94,12 @@ public class FileBrowserScreen
 		
 		drawCenteredString(mat, font, OnlineDisplays.gui("select_file"), width / 2, 20, 0xFFFFFF);
 		super.render(mat, mouseX, mouseY, partialTicks);
+	}
+	
+	@Override
+	public boolean isPauseScreen()
+	{
+		return false;
 	}
 	
 	private class FileListWidget

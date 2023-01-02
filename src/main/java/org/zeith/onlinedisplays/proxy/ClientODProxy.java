@@ -2,9 +2,13 @@ package org.zeith.onlinedisplays.proxy;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.zeith.hammerlib.net.PacketContext;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.onlinedisplays.OnlineDisplays;
@@ -16,9 +20,17 @@ import org.zeith.onlinedisplays.tiles.TileDisplay;
 public class ClientODProxy
 		extends CommonODProxy
 {
-	public ClientODProxy()
+	@Override
+	public void construct()
 	{
+		super.construct();
 		MinecraftForge.EVENT_BUS.addListener(this::clientTick);
+		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::addModels);
+	}
+	
+	private void addModels(ModelRegistryEvent e)
+	{
+		ModelLoader.addSpecialModel(new ResourceLocation(OnlineDisplays.MOD_ID, "item/display_inventory"));
 	}
 	
 	private boolean inLevel;

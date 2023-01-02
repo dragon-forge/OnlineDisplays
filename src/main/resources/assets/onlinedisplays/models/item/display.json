@@ -1,6 +1,14 @@
 {
-	"parent": "item/generated",
-	"textures": {
-		"layer0": "onlinedisplays:item/display"
-	}
+  "parent": "onlinedisplays:item/builtin/ister_item",
+  "textures": {
+    "particle": "onlinedisplays:item/display"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "alt": 0.5
+      },
+      "model": "onlinedisplays:item/display_inventory"
+    }
+  ]
 }

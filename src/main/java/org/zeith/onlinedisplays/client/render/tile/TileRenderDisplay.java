@@ -9,8 +9,6 @@ import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.util.math.vector.Matrix3f;
 import net.minecraft.util.math.vector.Matrix4f;
 import org.zeith.hammerlib.client.render.tile.ITESR;
-import org.zeith.onlinedisplays.client.texture.IDisplayableTexture;
-import org.zeith.onlinedisplays.client.texture.OnlineTextureParser;
 import org.zeith.onlinedisplays.tiles.TileDisplay;
 
 public class TileRenderDisplay
@@ -33,6 +31,9 @@ public class TileRenderDisplay
 		if(tile.image == null) return;
 		
 		long msExisted = (long) ((tile.ticksExisted + partial) * 50D);
+		
+		if(tile.isEmissive.get())
+			lighting = 15 << 20 | 15 << 4;
 		
 		RenderType type = RenderType.entityTranslucent(tile.image.getPath(msExisted));
 		IVertexBuilder builder = buf.getBuffer(type);

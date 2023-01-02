@@ -5,8 +5,7 @@ import net.minecraft.block.ContainerBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
@@ -18,10 +17,11 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.zeith.hammerlib.api.blocks.IItemGroupBlock;
+import org.zeith.hammerlib.api.blocks.ICustomBlockItem;
 import org.zeith.hammerlib.net.Network;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.onlinedisplays.OnlineDisplays;
+import org.zeith.onlinedisplays.client.render.ister.DisplayISTER;
 import org.zeith.onlinedisplays.net.PacketOpenDisplayConfig;
 import org.zeith.onlinedisplays.tiles.TileDisplay;
 
@@ -30,7 +30,7 @@ import java.util.Random;
 
 public class BlockDisplay
 		extends ContainerBlock
-		implements IItemGroupBlock
+		implements ICustomBlockItem
 {
 	public BlockDisplay(Properties props)
 	{
@@ -100,8 +100,11 @@ public class BlockDisplay
 	}
 	
 	@Override
-	public ItemGroup getItemGroup()
+	public BlockItem createBlockItem()
 	{
-		return ItemGroup.TAB_REDSTONE;
+		return new BlockItem(this, new Item.Properties()
+				.tab(ItemGroup.TAB_REDSTONE)
+				.setISTER(() -> DisplayISTER::new)
+		);
 	}
 }
