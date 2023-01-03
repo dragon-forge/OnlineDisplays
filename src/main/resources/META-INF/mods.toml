@@ -9,7 +9,8 @@ version = "${file.jarVersion}"
 displayName = "Online Displays"
 updateJSONURL = "http://dccg.herokuapp.com/api/fmluc/785509"
 displayURL = "http://dccg.herokuapp.com/api/fmlhp/785509"
-authors = "Zeitheron" #optional
+authors = "Zeitheron"
+logoFile = "display_logo.png"
 
 description = '''
 This mod is intended for Creative Mode use, but can be also used in Survival Mode, if chosen to.
@@ -21,7 +22,7 @@ Additionally, the lighting of it may be disabled, essentially rendering it as "e
 modId = "forge"
 mandatory = true
 versionRange = "[36,)"
-ordering = "NONE" # NONE/BEFORE/AFTER
+ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.onlinedisplays]]
