@@ -5,14 +5,12 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.world.server.ServerWorld;
 import org.zeith.hammerlib.net.IPacket;
 import org.zeith.hammerlib.net.PacketContext;
-import org.zeith.hammerlib.net.lft.TransportSessionBuilder;
 import org.zeith.onlinedisplays.OnlineDisplays;
 import org.zeith.onlinedisplays.level.LevelImageStorage;
 import org.zeith.onlinedisplays.util.ImageData;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.util.Locale;
+import java.util.UUID;
 
 public class PacketRequestImageData
 		implements IPacket
@@ -55,23 +53,8 @@ public class PacketRequestImageData
 			ImageData image = LevelImageStorage.get(level).load(hash);
 			if(image != null)
 			{
-				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				DataOutputStream out = new DataOutputStream(baos);
-				
-				try
-				{
-					image.write(out);
-				} catch(Exception e)
-				{
-					e.printStackTrace();
-				}
-				
-				new TransportSessionBuilder()
-						.setAcceptor(DisplayImageSession.class)
-						.addData(baos.toByteArray())
-						.build()
-						.sendTo(sender);
-				
+				UUID id = sender.getUUID();
+				TransferImageSession.sendTo(image, p -> p.getUUID().equals(id));
 				OnlineDisplays.LOG.info("Sending " + image.getFileName() + " to " + sender.getName().getString());
 			} else
 			{

@@ -20,7 +20,7 @@ import org.zeith.hammerlib.tiles.TileSyncableTickable;
 import org.zeith.hammerlib.util.java.DirectStorage;
 import org.zeith.onlinedisplays.OnlineDisplays;
 import org.zeith.onlinedisplays.client.texture.IDisplayableTexture;
-import org.zeith.onlinedisplays.init.TileOD;
+import org.zeith.onlinedisplays.init.TilesOD;
 import org.zeith.onlinedisplays.level.LevelImageStorage;
 import org.zeith.onlinedisplays.net.PacketClearRequestFlag;
 import org.zeith.onlinedisplays.net.PacketRequestDisplaySync;
@@ -60,7 +60,7 @@ public class TileDisplay
 	
 	public TileDisplay()
 	{
-		super(TileOD.DISPLAY);
+		super(TilesOD.DISPLAY);
 		dispatcher.registerProperty("url", imageURL);
 		dispatcher.registerProperty("hash", imageHash);
 		dispatcher.registerProperty("loaded", isLoaded);
@@ -97,14 +97,13 @@ public class TileDisplay
 				
 				LevelImageStorage storage = LevelImageStorage.get(sw);
 				
-				boolean isHashSet = !StringUtils.isNullOrEmpty(imageHash.get());
-				boolean isHashSaved = isHashSet && !storage.has(imageHash.get());
-				boolean hasURL = !StringUtils.isNullOrEmpty(imageURL.get()) && OnlineDisplays.URL_TEST.test(imageURL.get());
-				
-				if((!isHashSet || isHashSaved) && hasURL)
+				if(!StringUtils.isNullOrEmpty(imageURL.get()) && OnlineDisplays.URL_TEST.test(imageURL.get()))
 				{
-					// Image does not exist!
-					storage.queueDownload(imageURL.get());
+					// We refresh the image once in a while (for our case, once per server lifetime)
+					// To ensure we have the most up-to-date image.
+					// Local images are unaffected, since they are stored LOCALLY.
+					String hash = storage.queueDownload(imageURL.get()).orElse(null);
+					if(hash != null) imageHash.set(hash);
 				}
 				
 				final SUpdateTileEntityPacket pkt = getUpdatePacket();

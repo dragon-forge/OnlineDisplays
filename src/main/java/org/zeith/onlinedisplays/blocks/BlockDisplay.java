@@ -12,13 +12,11 @@ import net.minecraft.nbt.*;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.*;
 import net.minecraft.util.math.shapes.*;
 import net.minecraft.util.text.*;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.zeith.hammerlib.api.blocks.ICustomBlockItem;
@@ -26,7 +24,6 @@ import org.zeith.hammerlib.net.Network;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.onlinedisplays.OnlineDisplays;
 import org.zeith.onlinedisplays.client.render.ister.DisplayISTER;
-import org.zeith.onlinedisplays.level.LevelImageStorage;
 import org.zeith.onlinedisplays.net.PacketOpenDisplayConfig;
 import org.zeith.onlinedisplays.tiles.TileDisplay;
 import org.zeith.onlinedisplays.util.ImageData;
@@ -45,14 +42,11 @@ public class BlockDisplay
 	
 	VoxelShape SHAPE = box(2, 2, 2, 14, 14, 14);
 	
-	@Override
-	public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder)
+	public ItemStack save(TileDisplay display)
 	{
 		ItemStack st = new ItemStack(this);
-		TileDisplay display = Cast.cast(builder.getParameter(LootParameters.BLOCK_ENTITY), TileDisplay.class);
 		
 		if(display != null
-				&& display.getLevel() instanceof ServerWorld
 				&& !StringUtils.isNullOrEmpty(display.imageHash.get()))
 		{
 			
@@ -61,7 +55,8 @@ public class BlockDisplay
 			st.addTagElement("BlockEntityTag", nbt);
 			
 			String hash = display.imageHash.get();
-			ImageData id = LevelImageStorage.get((ServerWorld) display.getLevel()).load(hash);
+			ImageData id = OnlineDisplays.PROXY.getImageContainer(display.getLevel())
+					.load(hash);
 			
 			if(id != null)
 			{
@@ -87,7 +82,14 @@ public class BlockDisplay
 			}
 		}
 		
-		return Collections.singletonList(st);
+		return st;
+	}
+	
+	@Override
+	public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder)
+	{
+		TileDisplay display = Cast.cast(builder.getParameter(LootParameters.BLOCK_ENTITY), TileDisplay.class);
+		return Collections.singletonList(save(display));
 	}
 	
 	@Override
@@ -150,6 +152,14 @@ public class BlockDisplay
 	public TileEntity newBlockEntity(IBlockReader world)
 	{
 		return new TileDisplay();
+	}
+	
+	@Override
+	public ItemStack getPickBlock(BlockState state, RayTraceResult target, IBlockReader world, BlockPos pos, PlayerEntity player)
+	{
+		if(player == null || player.isShiftKeyDown())
+			return new ItemStack(this);
+		return save(Cast.cast(world.getBlockEntity(pos), TileDisplay.class));
 	}
 	
 	@Override

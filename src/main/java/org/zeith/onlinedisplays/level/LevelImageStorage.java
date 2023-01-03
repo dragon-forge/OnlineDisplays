@@ -6,13 +6,13 @@ import net.minecraft.util.StringUtils;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.WorldSavedData;
 import org.zeith.hammerlib.net.Network;
-import org.zeith.hammerlib.net.lft.TransportSessionBuilder;
 import org.zeith.hammerlib.util.java.Hashers;
 import org.zeith.hammerlib.util.java.net.HttpRequest;
 import org.zeith.onlinedisplays.OnlineDisplays;
+import org.zeith.onlinedisplays.api.IImageDataContainer;
 import org.zeith.onlinedisplays.mixins.DimensionSavedDataManagerAccessor;
-import org.zeith.onlinedisplays.net.DisplayImageSession;
 import org.zeith.onlinedisplays.net.PacketClearRequestFlag;
+import org.zeith.onlinedisplays.net.TransferImageSession;
 import org.zeith.onlinedisplays.util.ImageData;
 import org.zeith.onlinedisplays.util.NetUtil;
 
@@ -23,6 +23,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class LevelImageStorage
 		extends WorldSavedData
+		implements IImageDataContainer
 {
 	public static final String DATA_NAME = OnlineDisplays.MOD_ID + ".image_storage";
 	
@@ -45,14 +46,24 @@ public class LevelImageStorage
 	
 	public Optional<String> queueDownload(String url, UUID... sendToPlayerUUIDs)
 	{
-		CompletableFuture<String> task = downloadTasks.computeIfAbsent(url, imageURL -> CompletableFuture.supplyAsync(() ->
+		CompletableFuture<String> task = downloadTasks.get(url);
+		
+		if(task != null)
+		{
+			if(task.isDone())
+				return Optional.ofNullable(task.join());
+			
+			return Optional.empty();
+		}
+		
+		downloadTasks.put(url, CompletableFuture.supplyAsync(() ->
 		{
 			byte[] data = null;
 			String fileName = null;
 			
 			try
 			{
-				HttpRequest req = HttpRequest.get(imageURL)
+				HttpRequest req = HttpRequest.get(url)
 						.userAgent("MinecraftServer " + worldKey)
 						.accept("image/*");
 				
@@ -63,6 +74,8 @@ public class LevelImageStorage
 				
 				if(code / 100 == 2)
 					data = req.bytes();
+				
+				OnlineDisplays.LOG.info("GOT " + (data != null ? data.length : 0) + " bytes from " + req.url());
 			} catch(Throwable e)
 			{
 				e.printStackTrace();
@@ -80,23 +93,7 @@ public class LevelImageStorage
 				{
 					List<UUID> uuids = Arrays.asList(sendToPlayerUUIDs);
 					Network.sendToAll(new PacketClearRequestFlag(id.getHash()));
-					
-					ByteArrayOutputStream baos = new ByteArrayOutputStream();
-					DataOutputStream out = new DataOutputStream(baos);
-					
-					try
-					{
-						id.write(out);
-					} catch(Exception e)
-					{
-						e.printStackTrace();
-					}
-					
-					new TransportSessionBuilder()
-							.setAcceptor(DisplayImageSession.class)
-							.addData(baos.toByteArray())
-							.build()
-							.sendToPlayersIf(p -> uuids.contains(p.getUUID()));
+					TransferImageSession.sendTo(id, p -> uuids.contains(p.getUUID()));
 				}
 				
 				return id.getHash();
@@ -104,9 +101,6 @@ public class LevelImageStorage
 			
 			return null;
 		}));
-		
-		if(task.isDone())
-			return Optional.ofNullable(task.join());
 		
 		return Optional.empty();
 	}
@@ -118,7 +112,8 @@ public class LevelImageStorage
 		return imageCacheDir;
 	}
 	
-	public String save(ImageData data)
+	@Override
+	public void save(ImageData data)
 	{
 		String hash = data.getHash();
 		
@@ -126,7 +121,7 @@ public class LevelImageStorage
 		if(!fl.isDirectory()) fl.mkdirs();
 		fl = new File(fl, hash + ".bin");
 		
-		if(fl.isFile()) return hash;
+		if(fl.isFile()) return;
 		
 		try(DataOutputStream dos = new DataOutputStream(new FileOutputStream(fl)))
 		{
@@ -136,10 +131,9 @@ public class LevelImageStorage
 			OnlineDisplays.LOG.fatal("Failed to save image", e);
 			fl.delete();
 		}
-		
-		return hash;
 	}
 	
+	@Override
 	public ImageData load(String hash)
 	{
 		if(StringUtils.isNullOrEmpty(hash)) return null;
@@ -162,6 +156,7 @@ public class LevelImageStorage
 		return null;
 	}
 	
+	@Override
 	public boolean has(String hash)
 	{
 		if(StringUtils.isNullOrEmpty(hash)) return false;
@@ -197,7 +192,11 @@ public class LevelImageStorage
 		String pth = file.getAbsolutePath();
 		file = new File(pth.substring(0, pth.length() - 4)); // strip .dat
 		
-		if(data == null) data = new LevelImageStorage();
+		if(data == null)
+		{
+			data = new LevelImageStorage();
+			world.getDataStorage().set(data);
+		}
 		
 		data.server = new WeakReference<>(world.getServer());
 		data.worldKey = Objects.toString(world.getServer());

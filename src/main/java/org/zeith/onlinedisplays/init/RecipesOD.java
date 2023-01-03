@@ -1,7 +1,6 @@
 package org.zeith.onlinedisplays.init;
 
 
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraftforge.common.Tags;
 import org.zeith.hammerlib.annotations.ProvideRecipes;
@@ -23,7 +22,7 @@ public class RecipesOD
 					.map('g', Tags.Items.INGOTS_GOLD)
 					.map('r', Items.REDSTONE_LAMP)
 					.map('p', Items.PAINTING)
-					.result(new ItemStack(BlocksOD.DISPLAY))
+					.result(BlocksOD.DISPLAY)
 					.register();
 			
 			event.shapeless()

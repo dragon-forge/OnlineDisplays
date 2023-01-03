@@ -3,6 +3,7 @@ package org.zeith.onlinedisplays.client.texture;
 import net.minecraft.util.StringUtils;
 import org.zeith.hammerlib.net.Network;
 import org.zeith.onlinedisplays.OnlineDisplays;
+import org.zeith.onlinedisplays.api.IImageDataContainer;
 import org.zeith.onlinedisplays.net.PacketRequestImageData;
 import org.zeith.onlinedisplays.util.ImageData;
 
@@ -11,6 +12,27 @@ import java.util.*;
 
 public class ClientImageStorage
 {
+	public static final IImageDataContainer INSTANCE = new IImageDataContainer()
+	{
+		@Override
+		public ImageData load(String hash)
+		{
+			return ClientImageStorage.load(hash);
+		}
+		
+		@Override
+		public boolean has(String hash)
+		{
+			return getHashFile(hash).isFile();
+		}
+		
+		@Override
+		public void save(ImageData data)
+		{
+			ClientImageStorage.save(data);
+		}
+	};
+	
 	static final Map<String, Boolean> HASHED = new HashMap<>();
 	static final Set<String> REQUESTED = new HashSet<>();
 	

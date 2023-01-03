@@ -2,20 +2,32 @@ package org.zeith.onlinedisplays.proxy;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import org.objectweb.asm.Type;
+import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.net.PacketContext;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.onlinedisplays.OnlineDisplays;
+import org.zeith.onlinedisplays.api.IImageDataContainer;
 import org.zeith.onlinedisplays.client.gui.GuiDisplayConfig;
+import org.zeith.onlinedisplays.client.render.tile.TileRenderDisplay;
 import org.zeith.onlinedisplays.client.texture.*;
-import org.zeith.onlinedisplays.net.DisplayImageSession;
+import org.zeith.onlinedisplays.init.TilesOD;
+import org.zeith.onlinedisplays.net.TransferImageSession;
 import org.zeith.onlinedisplays.tiles.TileDisplay;
+
+import java.util.function.Consumer;
 
 public class ClientODProxy
 		extends CommonODProxy
@@ -25,7 +37,36 @@ public class ClientODProxy
 	{
 		super.construct();
 		MinecraftForge.EVENT_BUS.addListener(this::clientTick);
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::addModels);
+		
+		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+		
+		bus.addListener(this::addModels);
+		bus.addListener(this::clientSetup);
+	}
+	
+	@Override
+	public boolean isLocalPlayer(ServerPlayerEntity player)
+	{
+		if(player.getServer() instanceof IntegratedServer)
+		{
+			IntegratedServer is = (IntegratedServer) player.getServer();
+			return is.isSingleplayerOwner(player.getGameProfile());
+		}
+		
+		return super.isLocalPlayer(player);
+	}
+	
+	@Override
+	public IImageDataContainer getImageContainer(World world)
+	{
+		if(world.isClientSide) return ClientImageStorage.INSTANCE;
+		return super.getImageContainer(world);
+	}
+	
+	private void clientSetup(FMLClientSetupEvent e)
+	{
+		Consumer<FMLClientSetupEvent> setup = HammerLib.PROXY.addTESR(TilesOD.class, "DISPLAY", Type.getType(TileRenderDisplay.class));
+		if(setup != null) setup.accept(e);
 	}
 	
 	private void addModels(ModelRegistryEvent e)
@@ -81,14 +122,17 @@ public class ClientODProxy
 	}
 	
 	@Override
-	public void applyClientPicture(DisplayImageSession session, PacketContext ctx)
+	public void applyClientPicture(TransferImageSession session, PacketContext ctx)
 	{
-		if(ctx.getSide() == LogicalSide.CLIENT)
+		if(ctx == null || ctx.getSide() == LogicalSide.CLIENT)
 		{
 			if(session.isValid())
 			{
-				ClientImageStorage.save(session.getImageData());
-				OnlineDisplays.LOG.info("Downloaded image " + session.getImageData().getFileName() + " (" + session.getImageData().getData().length + " bytes)");
+				Minecraft.getInstance().submit(() ->
+				{
+					ClientImageStorage.save(session.getImageData());
+					OnlineDisplays.LOG.info("Downloaded image " + session.getImageData().getFileName() + " (" + session.getImageData().getData().length + " bytes) from server.");
+				});
 			} else
 			{
 				OnlineDisplays.LOG.error("Failed to download image.", session.getError());
