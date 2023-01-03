@@ -1,15 +1,25 @@
 package org.zeith.onlinedisplays.level;
 
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.StringUtils;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.WorldSavedData;
+import org.zeith.hammerlib.net.Network;
+import org.zeith.hammerlib.net.lft.TransportSessionBuilder;
 import org.zeith.hammerlib.util.java.Hashers;
+import org.zeith.hammerlib.util.java.net.HttpRequest;
 import org.zeith.onlinedisplays.OnlineDisplays;
 import org.zeith.onlinedisplays.mixins.DimensionSavedDataManagerAccessor;
+import org.zeith.onlinedisplays.net.DisplayImageSession;
+import org.zeith.onlinedisplays.net.PacketClearRequestFlag;
 import org.zeith.onlinedisplays.util.ImageData;
+import org.zeith.onlinedisplays.util.NetUtil;
 
 import java.io.*;
+import java.lang.ref.WeakReference;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public class LevelImageStorage
 		extends WorldSavedData
@@ -27,6 +37,78 @@ public class LevelImageStorage
 	private void setImageCacheDir(File file)
 	{
 		imageCacheDir = file;
+	}
+	
+	protected String worldKey;
+	protected WeakReference<MinecraftServer> server;
+	protected final Map<String, CompletableFuture<String>> downloadTasks = new HashMap<>();
+	
+	public Optional<String> queueDownload(String url, UUID... sendToPlayerUUIDs)
+	{
+		CompletableFuture<String> task = downloadTasks.computeIfAbsent(url, imageURL -> CompletableFuture.supplyAsync(() ->
+		{
+			byte[] data = null;
+			String fileName = null;
+			
+			try
+			{
+				HttpRequest req = HttpRequest.get(imageURL)
+						.userAgent("MinecraftServer " + worldKey)
+						.accept("image/*");
+				
+				fileName = NetUtil.getFileName(req);
+				int code = req.code();
+				
+				OnlineDisplays.LOG.info("GET " + req.url() + " | " + code + " => " + fileName);
+				
+				if(code / 100 == 2)
+					data = req.bytes();
+			} catch(Throwable e)
+			{
+				e.printStackTrace();
+				fileName = null;
+				data = null;
+			}
+			
+			if(fileName != null && data != null)
+			{
+				ImageData id = new ImageData(fileName, data);
+				save(id);
+				
+				MinecraftServer srv = server.get();
+				if(srv != null)
+				{
+					List<UUID> uuids = Arrays.asList(sendToPlayerUUIDs);
+					Network.sendToAll(new PacketClearRequestFlag(id.getHash()));
+					
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					DataOutputStream out = new DataOutputStream(baos);
+					
+					try
+					{
+						id.write(out);
+					} catch(Exception e)
+					{
+						e.printStackTrace();
+					}
+					
+					new TransportSessionBuilder()
+							.setAcceptor(DisplayImageSession.class)
+							.addData(baos.toByteArray())
+							.build()
+							.sendToPlayersIf(p -> uuids.contains(p.getUUID()));
+				}
+				
+				return id.getHash();
+			}
+			
+			return null;
+		}));
+		
+		if(task.isDone())
+			return Optional.ofNullable(task.join());
+		
+		return Optional.empty();
 	}
 	
 	public File getImageCacheDir()
@@ -80,6 +162,17 @@ public class LevelImageStorage
 		return null;
 	}
 	
+	public boolean has(String hash)
+	{
+		if(StringUtils.isNullOrEmpty(hash)) return false;
+		
+		File fl = new File(getImageCacheDir(), hash.substring(0, 2));
+		if(!fl.isDirectory()) fl.mkdirs();
+		fl = new File(fl, hash + ".bin");
+		
+		return fl.isFile();
+	}
+	
 	@Override
 	public void load(CompoundNBT nbt)
 	{
@@ -93,6 +186,9 @@ public class LevelImageStorage
 	
 	public static LevelImageStorage get(ServerWorld world)
 	{
+		// ALWAYS work with overworld.
+		world = world.getServer().overworld();
+		
 		LevelImageStorage data = world.getDataStorage().get(LevelImageStorage::new, DATA_NAME);
 		
 		DimensionSavedDataManagerAccessor a = (DimensionSavedDataManagerAccessor) world.getDataStorage();
@@ -103,7 +199,10 @@ public class LevelImageStorage
 		
 		if(data == null) data = new LevelImageStorage();
 		
+		data.server = new WeakReference<>(world.getServer());
+		data.worldKey = Objects.toString(world.getServer());
 		data.setImageCacheDir(file);
+		
 		return data;
 	}
 }

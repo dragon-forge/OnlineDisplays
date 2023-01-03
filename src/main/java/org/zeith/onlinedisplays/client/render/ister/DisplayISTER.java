@@ -101,7 +101,9 @@ public class DisplayISTER
 		beTag = beTag.getCompound("HL");
 		
 		String hash = beTag.getString("dataHash");
-		if(hash == null || hash.isEmpty() || !ClientImageStorage.isHashedOrRequest(hash))
+		String url = beTag.getString("url");
+		
+		if(hash.isEmpty() || !ClientImageStorage.isHashedOrRequest(hash, url))
 			return;
 		
 		boolean emissive = beTag.getBoolean("emissive");

@@ -21,15 +21,13 @@ import org.zeith.onlinedisplays.tiles.TileDisplay;
 
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 public class GuiDisplayConfig
 		extends Screen
 {
 	public static final Predicate<String> URL_MATCHER = ((Predicate<String>) Objects::nonNull)
 			.and(
-					Pattern.compile("https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)")
-							.asPredicate()
+					OnlineDisplays.URL_TEST
 							.or((str) -> str.startsWith("local/"))
 			);
 	

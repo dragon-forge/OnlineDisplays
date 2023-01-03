@@ -12,15 +12,18 @@ import org.zeith.onlinedisplays.util.ImageData;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.util.Locale;
 
 public class PacketRequestImageData
 		implements IPacket
 {
 	String hash;
+	String optURL;
 	
-	public PacketRequestImageData(String hash)
+	public PacketRequestImageData(String hash, String optURL)
 	{
 		this.hash = hash;
+		this.optURL = optURL;
 	}
 	
 	public PacketRequestImageData()
@@ -31,12 +34,14 @@ public class PacketRequestImageData
 	public void write(PacketBuffer buf)
 	{
 		buf.writeUtf(hash);
+		buf.writeUtf(optURL);
 	}
 	
 	@Override
 	public void read(PacketBuffer buf)
 	{
 		hash = buf.readUtf();
+		optURL = buf.readUtf();
 	}
 	
 	@Override
@@ -69,7 +74,14 @@ public class PacketRequestImageData
 				
 				OnlineDisplays.LOG.info("Sending " + image.getFileName() + " to " + sender.getName().getString());
 			} else
+			{
 				OnlineDisplays.LOG.error("Unable to find " + hash + ", requested by " + sender.getName().getString());
+				if(optURL != null && !optURL.isEmpty() && !optURL.toLowerCase(Locale.ROOT).startsWith("local/"))
+				{
+					OnlineDisplays.LOG.info("Downloading hash from " + optURL);
+					LevelImageStorage.get(level).queueDownload(optURL, sender.getUUID());
+				}
+			}
 		}
 	}
 }

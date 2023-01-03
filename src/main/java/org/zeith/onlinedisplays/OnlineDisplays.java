@@ -20,6 +20,8 @@ import org.zeith.onlinedisplays.util.ExtensionParser;
 
 import java.io.File;
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 @Mod(OnlineDisplays.MOD_ID)
 public class OnlineDisplays
@@ -30,6 +32,9 @@ public class OnlineDisplays
 	private static final Map<String, ExtensionParser> EXTENSION_PARSERS = new HashMap<>();
 	
 	public static final CommonODProxy PROXY = DistExecutor.unsafeRunForDist(() -> ClientODProxy::new, () -> CommonODProxy::new);
+	
+	public static final Pattern URL_REGEX = Pattern.compile("https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)");
+	public static final Predicate<String> URL_TEST = URL_REGEX.asPredicate();
 	
 	private static OnlineDisplaysProperties modSettings;
 	

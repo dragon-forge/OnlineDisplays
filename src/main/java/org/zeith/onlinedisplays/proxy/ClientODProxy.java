@@ -39,7 +39,7 @@ public class ClientODProxy
 	public IDisplayableTexture resolveTexture(TileDisplay display)
 	{
 		String hash = display.imageHash.get();
-		if(hash == null || hash.isEmpty() || !ClientImageStorage.isHashedOrRequest(hash))
+		if(hash == null || hash.isEmpty() || !ClientImageStorage.isHashedOrRequest(hash, display.imageURL.get()))
 			return null;
 		return OnlineTextureParser.getTextureByHash(hash);
 	}

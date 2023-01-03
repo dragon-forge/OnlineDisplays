@@ -4,6 +4,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.StringUtils;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.vector.Vector3f;
@@ -17,7 +18,6 @@ import org.zeith.hammerlib.net.properties.PropertyBool;
 import org.zeith.hammerlib.net.properties.PropertyString;
 import org.zeith.hammerlib.tiles.TileSyncableTickable;
 import org.zeith.hammerlib.util.java.DirectStorage;
-import org.zeith.hammerlib.util.java.net.HttpRequest;
 import org.zeith.onlinedisplays.OnlineDisplays;
 import org.zeith.onlinedisplays.client.texture.IDisplayableTexture;
 import org.zeith.onlinedisplays.init.TileOD;
@@ -25,10 +25,8 @@ import org.zeith.onlinedisplays.level.LevelImageStorage;
 import org.zeith.onlinedisplays.net.PacketClearRequestFlag;
 import org.zeith.onlinedisplays.net.PacketRequestDisplaySync;
 import org.zeith.onlinedisplays.util.ImageData;
-import org.zeith.onlinedisplays.util.NetUtil;
 
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 
 public class TileDisplay
 		extends TileSyncableTickable
@@ -92,9 +90,23 @@ public class TileDisplay
 		if(isOnServer() && atTickRate(20))
 		{
 			MinecraftServer server = level.getServer();
+			
 			if(server != null && level instanceof ServerWorld)
 			{
 				ServerWorld sw = (ServerWorld) level;
+				
+				LevelImageStorage storage = LevelImageStorage.get(sw);
+				
+				boolean isHashSet = !StringUtils.isNullOrEmpty(imageHash.get());
+				boolean isHashSaved = isHashSet && !storage.has(imageHash.get());
+				boolean hasURL = !StringUtils.isNullOrEmpty(imageURL.get()) && OnlineDisplays.URL_TEST.test(imageURL.get());
+				
+				if((!isHashSet || isHashSaved) && hasURL)
+				{
+					// Image does not exist!
+					storage.queueDownload(imageURL.get());
+				}
+				
 				final SUpdateTileEntityPacket pkt = getUpdatePacket();
 				if(pkt != null)
 					sw.getChunkSource().chunkMap.getPlayers(new ChunkPos(worldPosition), false)
@@ -105,9 +117,14 @@ public class TileDisplay
 	
 	public void updateURL(String url)
 	{
+		updateURL(url, false);
+	}
+	
+	public void updateURL(String url, boolean reDownload)
+	{
 		if(url == null) url = "";
 		
-		if(Objects.equals(imageURL.get(), url))
+		if(Objects.equals(imageURL.get(), url) && !reDownload)
 			return;
 		
 		this.imageURL.set(url);
@@ -123,36 +140,7 @@ public class TileDisplay
 		{
 			// Server-side logic
 			isLoaded.set(false);
-			
 			imageHash.set("");
-			
-			if(!imageURL.get().isEmpty())
-				CompletableFuture.runAsync(() ->
-				{
-					byte[] data = null;
-					String fileName = null;
-					try
-					{
-						HttpRequest req = HttpRequest.get(imageURL.get())
-								.userAgent("MinecraftServer " + level)
-								.accept("image/*");
-						
-						fileName = NetUtil.getFileName(req);
-						int code = req.code();
-						
-						OnlineDisplays.LOG.info("GET " + req.url() + " | " + code + " => " + fileName);
-						
-						if(code / 100 == 2)
-							data = req.bytes();
-					} catch(Throwable e)
-					{
-						e.printStackTrace();
-						fileName = null;
-						data = null;
-					}
-					
-					updateCache(data, fileName);
-				});
 		}
 	}
 	

@@ -35,12 +35,12 @@ public class ClientImageStorage
 		return fl;
 	}
 	
-	public static boolean isHashedOrRequest(String hash)
+	public static boolean isHashedOrRequest(String hash, String url)
 	{
 		if(isHashed(hash)) return true;
 		if(!REQUESTED.contains(hash))
 		{
-			Network.sendToServer(new PacketRequestImageData(hash));
+			Network.sendToServer(new PacketRequestImageData(hash, url));
 			REQUESTED.add(hash);
 		}
 		return false;
