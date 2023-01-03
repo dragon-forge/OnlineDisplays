@@ -17,3 +17,6 @@ gui.onlinedisplays.scale_x=Scale (X)
 gui.onlinedisplays.scale_y=Scale (Y)
 gui.onlinedisplays.url=Image URL
 gui.onlinedisplays.emissive=Toggle Emissive
+
+info.onlinedisplays.emissive.true=Emissive
+info.onlinedisplays.emissive.false=Non-Emissive

@@ -16,7 +16,7 @@ public class ClientImageStorage
 	
 	public static File getImageCacheDir()
 	{
-		File hid = new File(OnlineDisplays.getModHiddenDir(), "image_cache");
+		File hid = new File(OnlineDisplays.getModDir(), "image_cache");
 		if(!hid.isDirectory())
 			hid.mkdirs();
 		return hid;

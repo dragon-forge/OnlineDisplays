@@ -5,6 +5,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
@@ -91,10 +92,13 @@ public class TileDisplay
 		if(isOnServer() && atTickRate(20))
 		{
 			MinecraftServer server = level.getServer();
-			if(server != null)
+			if(server != null && level instanceof ServerWorld)
 			{
-				SUpdateTileEntityPacket pkt = getUpdatePacket();
-				server.getPlayerList().broadcastAll(pkt, level.dimension());
+				ServerWorld sw = (ServerWorld) level;
+				final SUpdateTileEntityPacket pkt = getUpdatePacket();
+				if(pkt != null)
+					sw.getChunkSource().chunkMap.getPlayers(new ChunkPos(worldPosition), false)
+							.forEach(e -> e.connection.send(pkt));
 			}
 		}
 	}
@@ -250,8 +254,8 @@ public class TileDisplay
 		{
 			pose.translate(translateX, translateY, translateZ);
 			
-			pose.mulPose(Vector3f.XP.rotationDegrees(rotateX));
 			pose.mulPose(Vector3f.YP.rotationDegrees(rotateY));
+			pose.mulPose(Vector3f.XP.rotationDegrees(rotateX));
 			pose.mulPose(Vector3f.ZP.rotationDegrees(rotateZ));
 			
 			pose.scale(scaleX, scaleY, 1F);

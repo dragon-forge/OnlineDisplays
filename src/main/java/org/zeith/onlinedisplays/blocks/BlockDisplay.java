@@ -6,15 +6,19 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
+import net.minecraft.loot.LootContext;
+import net.minecraft.loot.LootParameters;
+import net.minecraft.nbt.*;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.*;
+import net.minecraft.util.text.*;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.zeith.hammerlib.api.blocks.ICustomBlockItem;
@@ -22,11 +26,13 @@ import org.zeith.hammerlib.net.Network;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.onlinedisplays.OnlineDisplays;
 import org.zeith.onlinedisplays.client.render.ister.DisplayISTER;
+import org.zeith.onlinedisplays.level.LevelImageStorage;
 import org.zeith.onlinedisplays.net.PacketOpenDisplayConfig;
 import org.zeith.onlinedisplays.tiles.TileDisplay;
+import org.zeith.onlinedisplays.util.ImageData;
 
 import javax.annotation.Nullable;
-import java.util.Random;
+import java.util.*;
 
 public class BlockDisplay
 		extends ContainerBlock
@@ -40,21 +46,68 @@ public class BlockDisplay
 	VoxelShape SHAPE = box(2, 2, 2, 14, 14, 14);
 	
 	@Override
-	public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_)
+	public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder)
 	{
+		ItemStack st = new ItemStack(this);
+		TileDisplay display = Cast.cast(builder.getParameter(LootParameters.BLOCK_ENTITY), TileDisplay.class);
+		
+		if(display != null
+				&& display.getLevel() instanceof ServerWorld
+				&& !StringUtils.isNullOrEmpty(display.imageHash.get()))
+		{
+			
+			CompoundNBT nbt = new CompoundNBT();
+			nbt.put("HL", display.writeNBT(new CompoundNBT()));
+			st.addTagElement("BlockEntityTag", nbt);
+			
+			String hash = display.imageHash.get();
+			ImageData id = LevelImageStorage.get((ServerWorld) display.getLevel()).load(hash);
+			
+			if(id != null)
+			{
+				CompoundNBT dsp = new CompoundNBT();
+				ListNBT lore = new ListNBT();
+				
+				lore.add(StringNBT.valueOf(ITextComponent.Serializer.toJson(
+						new StringTextComponent(id.getFileName())
+								.withStyle(Style.EMPTY
+										.withColor(Color.fromRgb(0x22FFFF))
+								)
+				)));
+				
+				lore.add(StringNBT.valueOf(ITextComponent.Serializer.toJson(
+						OnlineDisplays.info("emissive." + display.isEmissive.get())
+								.withStyle(Style.EMPTY
+										.withColor(Color.fromRgb(display.isEmissive.get() ? 0xFFFF11 : 0x666666))
+								)
+				)));
+				
+				dsp.put("Lore", lore);
+				st.addTagElement("display", dsp);
+			}
+		}
+		
+		return Collections.singletonList(st);
+	}
+	
+	@Override
+	public VoxelShape getShape(BlockState state, IBlockReader reader, BlockPos pos, ISelectionContext ctx)
+	{
+		if(reader instanceof World && !OnlineDisplays.getModSettings().survivalMode && ((World) reader).isClientSide && !OnlineDisplays.PROXY.isCreative())
+			return VoxelShapes.empty();
 		return SHAPE;
 	}
 	
 	@Override
-	public VoxelShape getVisualShape(BlockState p_230322_1_, IBlockReader reader, BlockPos p_230322_3_, ISelectionContext p_230322_4_)
+	public VoxelShape getCollisionShape(BlockState state, IBlockReader reader, BlockPos pos, ISelectionContext ctx)
 	{
-		if(reader instanceof World && ((World) reader).isClientSide)
-		{
-			if(!OnlineDisplays.PROXY.isCreative())
-				return VoxelShapes.empty();
-		}
-		
-		return super.getVisualShape(p_230322_1_, reader, p_230322_3_, p_230322_4_);
+		return VoxelShapes.empty();
+	}
+	
+	@Override
+	public VoxelShape getVisualShape(BlockState state, IBlockReader reader, BlockPos pos, ISelectionContext ctx)
+	{
+		return SHAPE;
 	}
 	
 	@Override

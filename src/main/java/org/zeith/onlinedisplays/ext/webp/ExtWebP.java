@@ -13,7 +13,7 @@ import java.util.*;
 public class ExtWebP
 		extends ExtensionParser
 {
-	public static final WebP WEBP = new WebP(OnlineDisplays.getModHiddenDir());
+	public static final WebP WEBP = new WebP(OnlineDisplays.getModDir());
 	
 	public ExtWebP()
 	{
