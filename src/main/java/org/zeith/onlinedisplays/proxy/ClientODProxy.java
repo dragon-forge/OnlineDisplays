@@ -12,22 +12,15 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.objectweb.asm.Type;
-import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.net.PacketContext;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.onlinedisplays.OnlineDisplays;
 import org.zeith.onlinedisplays.api.IImageDataContainer;
 import org.zeith.onlinedisplays.client.gui.GuiDisplayConfig;
-import org.zeith.onlinedisplays.client.render.tile.TileRenderDisplay;
 import org.zeith.onlinedisplays.client.texture.*;
-import org.zeith.onlinedisplays.init.TilesOD;
 import org.zeith.onlinedisplays.net.TransferImageSession;
 import org.zeith.onlinedisplays.tiles.TileDisplay;
-
-import java.util.function.Consumer;
 
 public class ClientODProxy
 		extends CommonODProxy
@@ -41,7 +34,6 @@ public class ClientODProxy
 		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 		
 		bus.addListener(this::addModels);
-		bus.addListener(this::clientSetup);
 	}
 	
 	@Override
@@ -61,12 +53,6 @@ public class ClientODProxy
 	{
 		if(world.isClientSide) return ClientImageStorage.INSTANCE;
 		return super.getImageContainer(world);
-	}
-	
-	private void clientSetup(FMLClientSetupEvent e)
-	{
-		Consumer<FMLClientSetupEvent> setup = HammerLib.PROXY.addTESR(TilesOD.class, "DISPLAY", Type.getType(TileRenderDisplay.class));
-		if(setup != null) setup.accept(e);
 	}
 	
 	private void addModels(ModelRegistryEvent e)
