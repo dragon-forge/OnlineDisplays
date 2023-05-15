@@ -47,7 +47,7 @@ public class ExtGIF
 			int h = framesTx[0].getHeight();
 			
 			int durationMS = Arrays.stream(frames).mapToInt(GIFFrame::getDelayMS).sum();
-			ResourceLocation[] allTextures = new ResourceLocation[durationMS];
+			ResourceLocation[] allTextures = new ResourceLocation[Math.max(durationMS, 1)];
 			
 			int currentMS = 0;
 			for(int i = 0; i < frames.length; ++i)
@@ -56,6 +56,9 @@ public class ExtGIF
 				Arrays.fill(allTextures, currentMS, currentMS + fill, framesTx[i].getPath(0L));
 				currentMS += fill;
 			}
+			
+			if(allTextures.length == 1 || framesTx.length == 1)
+				return Optional.of(framesTx[0]);
 			
 			return Optional.of(new AnimatedDisplayableTexture(allTextures, hash, w, h));
 		}

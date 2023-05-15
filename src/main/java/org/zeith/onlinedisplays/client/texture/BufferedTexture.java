@@ -22,6 +22,7 @@ public class BufferedTexture
 	{
 		super(path);
 		this.data = data;
+		this.hash = hash;
 	}
 	
 	@Override
