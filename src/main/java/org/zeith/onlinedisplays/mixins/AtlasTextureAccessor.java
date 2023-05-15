@@ -1,11 +1,11 @@
 package org.zeith.onlinedisplays.mixins;
 
-import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-@Mixin(AtlasTexture.class)
+@Mixin(TextureAtlas.class)
 public interface AtlasTextureAccessor
 {
 	@Invoker

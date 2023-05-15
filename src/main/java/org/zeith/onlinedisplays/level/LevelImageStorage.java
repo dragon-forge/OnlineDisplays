@@ -1,16 +1,16 @@
 package org.zeith.onlinedisplays.level;
 
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.StringUtils;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.storage.WorldSavedData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.StringUtil;
+import net.minecraft.world.level.saveddata.SavedData;
 import org.zeith.hammerlib.net.Network;
 import org.zeith.hammerlib.util.java.Hashers;
 import org.zeith.hammerlib.util.java.net.HttpRequest;
 import org.zeith.onlinedisplays.OnlineDisplays;
 import org.zeith.onlinedisplays.api.IImageDataContainer;
-import org.zeith.onlinedisplays.mixins.DimensionSavedDataManagerAccessor;
+import org.zeith.onlinedisplays.mixins.DimensionDataStorageAccessor;
 import org.zeith.onlinedisplays.net.PacketClearRequestFlag;
 import org.zeith.onlinedisplays.net.TransferImageSession;
 import org.zeith.onlinedisplays.util.ImageData;
@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public class LevelImageStorage
-		extends WorldSavedData
+		extends SavedData
 		implements IImageDataContainer
 {
 	public static final String DATA_NAME = OnlineDisplays.MOD_ID + ".image_storage";
@@ -30,9 +30,9 @@ public class LevelImageStorage
 	public static final Hashers HASH = Hashers.SHA1;
 	private File imageCacheDir;
 	
-	public LevelImageStorage()
+	public LevelImageStorage(CompoundTag nbt)
 	{
-		super(DATA_NAME);
+		load(nbt);
 	}
 	
 	private void setImageCacheDir(File file)
@@ -136,7 +136,7 @@ public class LevelImageStorage
 	@Override
 	public ImageData load(String hash)
 	{
-		if(StringUtils.isNullOrEmpty(hash)) return null;
+		if(StringUtil.isNullOrEmpty(hash)) return null;
 		
 		File fl = new File(getImageCacheDir(), hash.substring(0, 2));
 		if(!fl.isDirectory()) fl.mkdirs();
@@ -159,7 +159,7 @@ public class LevelImageStorage
 	@Override
 	public boolean has(String hash)
 	{
-		if(StringUtils.isNullOrEmpty(hash)) return false;
+		if(StringUtil.isNullOrEmpty(hash)) return false;
 		
 		File fl = new File(getImageCacheDir(), hash.substring(0, 2));
 		if(!fl.isDirectory()) fl.mkdirs();
@@ -168,25 +168,24 @@ public class LevelImageStorage
 		return fl.isFile();
 	}
 	
-	@Override
-	public void load(CompoundNBT nbt)
+	public void load(CompoundTag nbt)
 	{
 	}
 	
 	@Override
-	public CompoundNBT save(CompoundNBT nbt)
+	public CompoundTag save(CompoundTag nbt)
 	{
 		return nbt;
 	}
 	
-	public static LevelImageStorage get(ServerWorld world)
+	public static LevelImageStorage get(ServerLevel world)
 	{
 		// ALWAYS work with overworld.
 		world = world.getServer().overworld();
 		
 		LevelImageStorage data = world.getDataStorage().get(LevelImageStorage::new, DATA_NAME);
 		
-		DimensionSavedDataManagerAccessor a = (DimensionSavedDataManagerAccessor) world.getDataStorage();
+		DimensionDataStorageAccessor a = (DimensionDataStorageAccessor) world.getDataStorage();
 		File file = a.callGetDataFile(OnlineDisplays.MOD_ID + File.separator + "image_cache");
 		
 		String pth = file.getAbsolutePath();
@@ -194,8 +193,8 @@ public class LevelImageStorage
 		
 		if(data == null)
 		{
-			data = new LevelImageStorage();
-			world.getDataStorage().set(data);
+			data = new LevelImageStorage(new CompoundTag());
+			world.getDataStorage().set(DATA_NAME, data);
 		}
 		
 		data.server = new WeakReference<>(world.getServer());

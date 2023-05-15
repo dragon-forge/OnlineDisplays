@@ -1,39 +1,44 @@
 package org.zeith.onlinedisplays.client.render.ister;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import com.mojang.datafixers.util.Pair;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix3f;
+import com.mojang.math.Matrix4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.model.*;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Matrix3f;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraftforge.client.model.data.EmptyModelData;
-import net.minecraftforge.common.MinecraftForge;
-import org.zeith.hammerlib.event.ResourceManagerReloadEvent;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.client.model.data.ModelData;
 import org.zeith.onlinedisplays.client.resources.data.DrawableAreaMetadataSection;
 import org.zeith.onlinedisplays.client.texture.*;
 import org.zeith.onlinedisplays.mixins.AtlasTextureAccessor;
+import org.zeith.onlinedisplays.mixins.BakedOverrideAccessor;
 
 import java.util.*;
 
 public class DisplayISTER
-		extends ItemStackTileEntityRenderer
+		extends BlockEntityWithoutLevelRenderer
 {
-	public DisplayISTER()
-	{
-		MinecraftForge.EVENT_BUS.addListener(this::onResourcesReload);
-	}
+	public static final BlockEntityWithoutLevelRenderer INSTANCE = new DisplayISTER();
 	
 	private Map<ResourceLocation, DrawableAreaMetadataSection> metadataSectionMap = new HashMap<>();
 	
-	public void onResourcesReload(ResourceManagerReloadEvent e)
+	public DisplayISTER()
+	{
+		super(null, null);
+		((ReloadableResourceManager) Minecraft.getInstance().getResourceManager()).registerReloadListener(this);
+	}
+	
+	@Override
+	public void onResourceManagerReload(ResourceManager p_172555_)
 	{
 		metadataSectionMap.clear();
 	}
@@ -48,7 +53,7 @@ public class DisplayISTER
 		
 		try
 		{
-			meta = Minecraft.getInstance().getResourceManager().getResource(rl).getMetadata(DrawableAreaMetadataSection.SERIALIZER);
+			meta = Minecraft.getInstance().getResourceManager().getResourceOrThrow(rl).metadata().getSection(DrawableAreaMetadataSection.SERIALIZER).orElseThrow();
 		} catch(Exception e)
 		{
 			e.printStackTrace();
@@ -59,35 +64,33 @@ public class DisplayISTER
 		return Optional.ofNullable(meta);
 	}
 	
-	public TextureAtlasSprite renderAllOverrides(ItemStack stack, ItemCameraTransforms.TransformType transformType, MatrixStack pose, IRenderTypeBuffer bufferSource, int uv2, int overlay)
+	public TextureAtlasSprite renderAllOverrides(ItemStack stack, PoseStack pose, MultiBufferSource bufferSource, int uv2, int overlay)
 	{
 		Minecraft mc = Minecraft.getInstance();
 		ItemRenderer ir = mc.getItemRenderer();
 		
-		IBakedModel isterModel = ir.getModel(stack, mc.level, mc.player);
-		ImmutableList<ItemOverride> overrides = isterModel.getOverrides().getOverrides();
+		BakedModel isterModel = ir.getModel(stack, mc.level, mc.player, 0);
+		ImmutableList<ItemOverrides.BakedOverride> overrides = isterModel.getOverrides().getOverrides();
 		
-		for(ItemOverride override : overrides)
+		for(var override : overrides)
 		{
-			ResourceLocation mod = override.getModel();
-			IBakedModel overridenModel;
-			if(mod != null && (overridenModel = mc.getModelManager().getModel(mod)) != null)
-			{
-				for(Pair<IBakedModel, RenderType> model : overridenModel.getLayerModels(stack, true))
-				{
-					IVertexBuilder buf = bufferSource.getBuffer(model.getSecond());
-					ir.renderModelLists(overridenModel, stack, uv2, overlay, pose, buf);
-				}
-			}
+			var overridenModel = ((BakedOverrideAccessor) override).getModel();
+			if(overridenModel != null)
+				for(var model : overridenModel.getRenderPasses(stack, true))
+					for(var pass : model.getRenderTypes(stack, true))
+					{
+						var buf = bufferSource.getBuffer(pass);
+						ir.renderModelLists(overridenModel, stack, uv2, overlay, pose, buf);
+					}
 		}
 		
-		return isterModel.getParticleTexture(EmptyModelData.INSTANCE);
+		return isterModel.getParticleIcon(ModelData.EMPTY);
 	}
 	
 	@Override
-	public void renderByItem(ItemStack stack, ItemCameraTransforms.TransformType tt, MatrixStack mat, IRenderTypeBuffer src, int uv2, int overlay)
+	public void renderByItem(ItemStack stack, ItemTransforms.TransformType tt, PoseStack mat, MultiBufferSource src, int uv2, int overlay)
 	{
-		TextureAtlasSprite tex = renderAllOverrides(stack, tt, mat, src, uv2, overlay);
+		TextureAtlasSprite tex = renderAllOverrides(stack, mat, src, uv2, overlay);
 		
 		if(tex == null)
 			return;
@@ -95,7 +98,7 @@ public class DisplayISTER
 		DrawableAreaMetadataSection meta = getSectionFrom(tex).orElse(null);
 		if(meta == null) return;
 		
-		CompoundNBT beTag = stack.getTagElement("BlockEntityTag");
+		CompoundTag beTag = stack.getTagElement("BlockEntityTag");
 		if(beTag == null) return;
 		
 		beTag = beTag.getCompound("HL");
@@ -112,10 +115,10 @@ public class DisplayISTER
 		if(tx != null)
 		{
 			RenderType type = RenderType.entityTranslucent(tx.getPath(System.currentTimeMillis()));
-			IVertexBuilder builder = src.getBuffer(type);
+			var builder = src.getBuffer(type);
 			
-			boolean gui = tt == ItemCameraTransforms.TransformType.GUI;
-			boolean thirdPerson = tt == ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND || tt == ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
+			boolean gui = tt == ItemTransforms.TransformType.GUI;
+			boolean thirdPerson = tt == ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND || tt == ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
 			
 			float normalX = 0.0F;
 			float normalY = gui ? -1.0F : 0.0F;
@@ -162,7 +165,7 @@ public class DisplayISTER
 			mat.translate(x, y, 8.51 / 16D);
 			mat.scale(xW, yH, xW);
 			
-			MatrixStack.Entry matrixstack$entry = mat.last();
+			PoseStack.Pose matrixstack$entry = mat.last();
 			Matrix4f pose = matrixstack$entry.pose();
 			Matrix3f normal = matrixstack$entry.normal();
 			

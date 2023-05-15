@@ -1,6 +1,6 @@
 package org.zeith.onlinedisplays.ext.gif;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import org.zeith.onlinedisplays.client.texture.*;
 import org.zeith.onlinedisplays.ext.gif.decoders.ADecoder;
 import org.zeith.onlinedisplays.ext.gif.lib.GIFFrame;

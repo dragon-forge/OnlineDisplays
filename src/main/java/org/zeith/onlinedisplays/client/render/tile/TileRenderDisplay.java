@@ -1,20 +1,19 @@
 package org.zeith.onlinedisplays.client.render.tile;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix3f;
+import com.mojang.math.Matrix4f;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.util.math.vector.Matrix3f;
-import net.minecraft.util.math.vector.Matrix4f;
-import org.zeith.hammerlib.client.render.tile.ITESR;
+import org.zeith.hammerlib.client.render.tile.IBESR;
 import org.zeith.onlinedisplays.tiles.TileDisplay;
 
 public class TileRenderDisplay
-		implements ITESR<TileDisplay>
+		implements IBESR<TileDisplay>
 {
-	private static void addVertex(Matrix4f pose, Matrix3f normal, IVertexBuilder buf, float r, float g, float b, float a, float x, float y, float z, float u, float v)
+	private static void addVertex(Matrix4f pose, Matrix3f normal, VertexConsumer buf, float r, float g, float b, float a, float x, float y, float z, float u, float v)
 	{
 		buf.vertex(pose, x, y, z)
 				.color(r, g, b, a)
@@ -26,7 +25,13 @@ public class TileRenderDisplay
 	}
 	
 	@Override
-	public void render(TileDisplay tile, float partial, MatrixStack matrix, IRenderTypeBuffer buf, int lighting, int overlay, TileEntityRendererDispatcher renderer)
+	public int getViewDistance()
+	{
+		return 10000;
+	}
+	
+	@Override
+	public void render(TileDisplay tile, float partial, PoseStack matrix, MultiBufferSource buf, int lighting, int overlay)
 	{
 		if(tile.image == null) return;
 		
@@ -36,11 +41,11 @@ public class TileRenderDisplay
 			lighting = 15 << 20 | 15 << 4;
 		
 		RenderType type = RenderType.entityTranslucent(tile.image.getPath(msExisted));
-		IVertexBuilder builder = buf.getBuffer(type);
+		var builder = buf.getBuffer(type);
 		
 		tile.matrix.apply(matrix);
 		
-		MatrixStack.Entry matrixstack$entry = matrix.last();
+		var matrixstack$entry = matrix.last();
 		Matrix4f pose = matrixstack$entry.pose();
 		Matrix3f normal = matrixstack$entry.normal();
 		

@@ -1,14 +1,11 @@
 package org.zeith.onlinedisplays.client.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.gui.IGuiEventListener;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.gui.widget.button.ImageButton;
-import net.minecraft.client.util.InputMappings;
-import net.minecraft.util.ResourceLocation;
+import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.components.*;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.resources.ResourceLocation;
 import org.zeith.hammerlib.client.utils.FXUtils;
 import org.zeith.hammerlib.net.Network;
 import org.zeith.hammerlib.net.lft.TransportSessionBuilder;
@@ -47,16 +44,16 @@ public class GuiDisplayConfig
 		this.display = display;
 	}
 	
-	TextFieldWidget url;
+	EditBox url;
 	
 	// Offsets
-	TextFieldWidget tx, ty, tz;
+	EditBox tx, ty, tz;
 	
 	// Rotations
-	TextFieldWidget rx, ry, rz;
+	EditBox rx, ry, rz;
 	
 	// Scale
-	TextFieldWidget sx, sy;
+	EditBox sx, sy;
 	
 	ImageButtonAccessor emissiveToggle;
 	
@@ -70,7 +67,7 @@ public class GuiDisplayConfig
 		super.init();
 		
 		String pv = url != null ? url.getValue() : display.imageURL.get();
-		url = addWidget(new TextFieldWidget(font, guiLeft + 7, guiTop + 19, 142, 18, OnlineDisplays.gui("url")));
+		url = addWidget(new EditBox(font, guiLeft + 7, guiTop + 19, 142, 18, OnlineDisplays.gui("url")));
 		url.setMaxLength(1024);
 		url.setValue(pv);
 		if(pv != null)
@@ -84,19 +81,19 @@ public class GuiDisplayConfig
 			int yBase = 52;
 			
 			pv = tx != null ? tx.getValue() : Float.toString(display.matrix.translateX);
-			tx = addWidget(new TextFieldWidget(font, guiLeft + xBase, guiTop + yBase, 40, 18, OnlineDisplays.gui("translate_x")));
+			tx = addWidget(new EditBox(font, guiLeft + xBase, guiTop + yBase, 40, 18, OnlineDisplays.gui("translate_x")));
 			tx.setMaxLength(10);
 			tx.setValue(pv);
 			tx.moveCursorToStart();
 			
 			pv = ty != null ? ty.getValue() : Float.toString(display.matrix.translateY);
-			ty = addWidget(new TextFieldWidget(font, guiLeft + xBase + 60, guiTop + yBase, 40, 18, OnlineDisplays.gui("translate_y")));
+			ty = addWidget(new EditBox(font, guiLeft + xBase + 60, guiTop + yBase, 40, 18, OnlineDisplays.gui("translate_y")));
 			ty.setMaxLength(10);
 			ty.setValue(pv);
 			ty.moveCursorToStart();
 			
 			pv = tz != null ? tz.getValue() : Float.toString(display.matrix.translateZ);
-			tz = addWidget(new TextFieldWidget(font, guiLeft + xBase + 120, guiTop + yBase, 40, 18, OnlineDisplays.gui("translate_z")));
+			tz = addWidget(new EditBox(font, guiLeft + xBase + 120, guiTop + yBase, 40, 18, OnlineDisplays.gui("translate_z")));
 			tz.setMaxLength(10);
 			tz.setValue(pv);
 			tz.moveCursorToStart();
@@ -107,19 +104,19 @@ public class GuiDisplayConfig
 			int yBase = 85;
 			
 			pv = rx != null ? rx.getValue() : Float.toString(display.matrix.rotateX);
-			rx = addWidget(new TextFieldWidget(font, guiLeft + xBase, guiTop + yBase, 40, 18, OnlineDisplays.gui("rotate_x")));
+			rx = addWidget(new EditBox(font, guiLeft + xBase, guiTop + yBase, 40, 18, OnlineDisplays.gui("rotate_x")));
 			rx.setMaxLength(10);
 			rx.setValue(pv);
 			rx.moveCursorToStart();
 			
 			pv = ry != null ? ry.getValue() : Float.toString(display.matrix.rotateY);
-			ry = addWidget(new TextFieldWidget(font, guiLeft + xBase + 60, guiTop + yBase, 40, 18, OnlineDisplays.gui("rotate_y")));
+			ry = addWidget(new EditBox(font, guiLeft + xBase + 60, guiTop + yBase, 40, 18, OnlineDisplays.gui("rotate_y")));
 			ry.setMaxLength(10);
 			ry.setValue(pv);
 			ry.moveCursorToStart();
 			
 			pv = rz != null ? rz.getValue() : Float.toString(display.matrix.rotateZ);
-			rz = addWidget(new TextFieldWidget(font, guiLeft + xBase + 120, guiTop + yBase, 40, 18, OnlineDisplays.gui("rotate_z")));
+			rz = addWidget(new EditBox(font, guiLeft + xBase + 120, guiTop + yBase, 40, 18, OnlineDisplays.gui("rotate_z")));
 			rz.setMaxLength(10);
 			rz.setValue(pv);
 			rz.moveCursorToStart();
@@ -130,22 +127,22 @@ public class GuiDisplayConfig
 			int yBase = 118;
 			
 			pv = sx != null ? sx.getValue() : Float.toString(display.matrix.scaleX);
-			sx = addWidget(new TextFieldWidget(font, guiLeft + xBase, guiTop + yBase, 40, 18, OnlineDisplays.gui("scale_x")));
+			sx = addWidget(new EditBox(font, guiLeft + xBase, guiTop + yBase, 40, 18, OnlineDisplays.gui("scale_x")));
 			sx.setMaxLength(10);
 			sx.setValue(pv);
 			sx.moveCursorToStart();
 			
 			pv = sy != null ? sy.getValue() : Float.toString(display.matrix.scaleY);
-			sy = addWidget(new TextFieldWidget(font, guiLeft + xBase + 60, guiTop + yBase, 40, 18, OnlineDisplays.gui("scale_y")));
+			sy = addWidget(new EditBox(font, guiLeft + xBase + 60, guiTop + yBase, 40, 18, OnlineDisplays.gui("scale_y")));
 			sy.setMaxLength(10);
 			sy.setValue(pv);
 			sy.moveCursorToStart();
 		}
 		
-		addButton(new Button(guiLeft + xSize - 80 - 6, guiTop + ySize - 26, 80, 20, OnlineDisplays.gui("apply"), btn -> applyChanges()));
-		addButton(new Button(guiLeft + 6, guiTop + ySize - 26, 80, 20, OnlineDisplays.gui("aspect"), btn -> applyAspectRatio()));
+		addWidget(new Button(guiLeft + xSize - 80 - 6, guiTop + ySize - 26, 80, 20, OnlineDisplays.gui("apply"), btn -> applyChanges()));
+		addWidget(new Button(guiLeft + 6, guiTop + ySize - 26, 80, 20, OnlineDisplays.gui("aspect"), btn -> applyAspectRatio()));
 		
-		addButton(new ImageButton(guiLeft + 7 + 143, guiTop + 18, 20, 20,
+		addWidget(new ImageButton(guiLeft + 7 + 143, guiTop + 18, 20, 20,
 				0, 0,
 				20,
 				OnlineDisplays.id("textures/gui/choose_file.png"),
@@ -153,11 +150,11 @@ public class GuiDisplayConfig
 				40,
 				btn -> beginSelectingLocalFile(), (btn, mat, mouseX, mouseY) ->
 		{
-			renderToolTip(mat, Arrays.asList(OnlineDisplays.gui("local_file").getVisualOrderText()), mouseX, mouseY, font);
+			renderTooltip(mat, Arrays.asList(OnlineDisplays.gui("local_file").getVisualOrderText()), mouseX, mouseY, font);
 		}, OnlineDisplays.EMPTY_TXT
 		));
 		
-		emissiveToggle = (ImageButtonAccessor) addButton(new ImageButton(guiLeft + 7, guiTop + 117, 20, 20,
+		emissiveToggle = (ImageButtonAccessor) addWidget(new ImageButton(guiLeft + 7, guiTop + 117, 20, 20,
 				0, 0,
 				20,
 				OnlineDisplays.id("textures/gui/emissive.png"),
@@ -165,7 +162,7 @@ public class GuiDisplayConfig
 				40,
 				btn -> toggleEmissive(), (btn, mat, mouseX, mouseY) ->
 		{
-			renderToolTip(mat, Arrays.asList(OnlineDisplays.gui("emissive").getVisualOrderText()), mouseX, mouseY, font);
+			renderTooltip(mat, Arrays.asList(OnlineDisplays.gui("emissive").getVisualOrderText()), mouseX, mouseY, font);
 		}, OnlineDisplays.EMPTY_TXT
 		));
 		updateEmissive();
@@ -241,7 +238,7 @@ public class GuiDisplayConfig
 		super.removed();
 	}
 	
-	public Optional<Float> tryParseAndColorize(TextFieldWidget tf)
+	public Optional<Float> tryParseAndColorize(EditBox tf)
 	{
 		try
 		{
@@ -274,7 +271,7 @@ public class GuiDisplayConfig
 	}
 	
 	@Override
-	public void render(MatrixStack mat, int mouseX, int mouseY, float partial)
+	public void render(PoseStack mat, int mouseX, int mouseY, float partial)
 	{
 		renderBackground(mat);
 		
@@ -282,13 +279,13 @@ public class GuiDisplayConfig
 		blit(mat, guiLeft, guiTop, 0, 0, xSize, ySize);
 		font.draw(mat, getTitle(), guiLeft + 8, guiTop + 6, 0x222222);
 		
-		for(IGuiEventListener w : children())
-			if(w instanceof Widget)
-				((Widget) w).render(mat, mouseX, mouseY, partial);
+		for(GuiEventListener w : children())
+			if(w instanceof Widget ww)
+				ww.render(mat, mouseX, mouseY, partial);
 		
-		for(IGuiEventListener w : children())
-			if(w instanceof Widget && w.isMouseOver(mouseX, mouseY))
-				renderToolTip(mat, Collections.singletonList(((Widget) w).getMessage().getVisualOrderText()), mouseX, mouseY, font);
+		for(GuiEventListener w : children())
+			if(w instanceof AbstractWidget wg && w.isMouseOver(mouseX, mouseY))
+				renderTooltip(mat, Collections.singletonList(wg.getMessage().getVisualOrderText()), mouseX, mouseY, font);
 		
 		super.render(mat, mouseX, mouseY, partial);
 	}
@@ -302,7 +299,7 @@ public class GuiDisplayConfig
 	@Override
 	public boolean keyPressed(int k1, int k2, int wtf)
 	{
-		InputMappings.Input key = InputMappings.getKey(k1, k2);
+		InputConstants.Key key = InputConstants.getKey(k1, k2);
 		
 		if(this.minecraft.options.keyInventory.isActiveAndMatches(key) && !url.isFocused())
 		{

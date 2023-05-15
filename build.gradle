@@ -10,9 +10,9 @@ buildscript {
         }
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
         classpath "gradle.plugin.com.matthewprenger:CurseGradle:1.4.0"
-        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
+        classpath 'org.spongepowered:mixingradle:0.7.+'
     }
 }
 
@@ -40,20 +40,21 @@ version = config.mod_version
 group = config.maven_group
 archivesBaseName = "${config.archive_name}-${config.mc_version}"
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = config.java
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 mixin {
     add sourceSets.main, "mixins.${config.mod_id}.refmap.json"
 }
 
+println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 minecraft {
-    mappings channel: config.mcp_ch, version: config.mcp_vr
+    mappings channel: 'official', version: config.mc_version
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
     runs {
         client {
             workingDirectory project.file('run/client')
             property 'forge.logging.console.level', 'debug'
-            setArgs(Arrays.asList("--mixin mixins.${config.mod_id}.json -Dmixin.env.disableRefMap=true".split(' ')))
+            setArgs(Arrays.asList("--mixin mixins.${config.mod_id}.json --username ${config.mc_user.split(',')[0]} --uuid ${config.mc_user.split(',')[1]}".split(' ')))
             mods {
                 examplemod {
                     source sourceSets.main
@@ -77,10 +78,12 @@ minecraft {
 repositories {
     maven {
         name = "Zeitheron Maven"
-        url = "https://maven.zeith.org"
+        url = "https://maven.zeith.org/"
     }
-    flatDir { dirs 'runtimeMods' }
-    flatDir { dirs 'shadowLibs' }
+    flatDir { dirs "libraries/${config.mc_version}/all" }
+    flatDir { dirs "libraries/${config.mc_version}/classpathOnly" }
+    flatDir { dirs "libraries/${config.mc_version}/runtimeOnly" }
+    flatDir { dirs "libraries/embedded" }
 }
 
 dependencies {
@@ -88,25 +91,56 @@ dependencies {
 
     implementation "org.zeith.hammerlib:HammerLib-${config.mc_version}:${config.hl_version}:deobf"
 
-    annotationProcessor("org.spongepowered:mixin:0.8.2:processor")
+    annotationProcessor("org.spongepowered:mixin:0.8.5:processor")
 
-    if (file("runtimeMods").isDirectory()) {
-        file("runtimeMods").eachFile { file ->
+    def libraries = new File(file("libraries"), "${config.mc_version}")
+    if (!libraries.isDirectory()) libraries.mkdirs()
+
+    def libDir = new File(libraries, "all");
+    if (libDir.isDirectory()) {
+        libDir.eachFile { file ->
             def splitPos = file.name.lastIndexOf("-")
             def modartifact = file.name.substring(0, splitPos)
             def modversion = file.name.substring(splitPos + 1, file.name.length() - 4)
-            def modreference = "lib:$modartifact:$modversion"
-
             dependencies {
-                implementation fg.deobf(project.dependencies.create(modreference) {
+                implementation fg.deobf(project.dependencies.create("_all:$modartifact:$modversion") {
                     transitive = false
                 })
             }
         }
-    } else file("runtimeMods").mkdir();
+    } else libDir.mkdir();
 
-    if (file("shadowLibs").isDirectory()) {
-        file("shadowLibs").eachFile { file ->
+    libDir = new File(libraries, "classpathOnly");
+    if (libDir.isDirectory()) {
+        libDir.eachFile { file ->
+            def splitPos = file.name.lastIndexOf("-")
+            def modartifact = file.name.substring(0, splitPos)
+            def modversion = file.name.substring(splitPos + 1, file.name.length() - 4)
+            dependencies {
+                compileClasspath fg.deobf(project.dependencies.create("_classpath:$modartifact:$modversion") {
+                    transitive = false
+                })
+            }
+        }
+    } else libDir.mkdir();
+
+    libDir = new File(libraries, "runtimeOnly");
+    if (libDir.isDirectory()) {
+        libDir.eachFile { file ->
+            def splitPos = file.name.lastIndexOf("-")
+            def modartifact = file.name.substring(0, splitPos)
+            def modversion = file.name.substring(splitPos + 1, file.name.length() - 4)
+            dependencies {
+                runtimeClasspath fg.deobf(project.dependencies.create("_runtime:$modartifact:$modversion") {
+                    transitive = false
+                })
+            }
+        }
+    } else libDir.mkdir();
+
+    libDir = new File(file("libraries"), "embedded");
+    if (libDir.isDirectory()) {
+        libDir.eachFile { file ->
             def splitPos = file.name.lastIndexOf("-")
             def modartifact = file.name.substring(0, splitPos)
             def modversion = file.name.substring(splitPos + 1, file.name.length() - 4)
@@ -120,18 +154,8 @@ dependencies {
                 shadow dep
             }
         }
-    } else file("shadowLibs").mkdir();
+    } else libDir.mkdir();
 }
-
-shadowJar {
-    classifier ''
-    configurations = [project.configurations.shadow]
-}
-
-reobf {
-    shadowJar {}
-}
-shadowJar.finalizedBy('reobfShadowJar')
 
 jar {
     manifest {
@@ -164,6 +188,16 @@ task deobfJar(type: Jar) {
     }
 }
 
+shadowJar {
+    classifier ''
+    configurations = [project.configurations.shadow]
+}
+
+reobf {
+    shadowJar {}
+}
+shadowJar.finalizedBy('reobfShadowJar')
+
 task srcJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allJava
     classifier = 'sources'
@@ -172,10 +206,6 @@ task srcJar(type: Jar, dependsOn: classes) {
 artifacts {
     archives deobfJar
     archives srcJar
-}
-
-reobf {
-
 }
 
 curseforge {
@@ -196,7 +226,7 @@ curseforge {
     }
 }
 
-import net.minecraftforge.gradle.common.task.SignJar
+import net.minecraftforge.gradle.common.tasks.SignJar
 
 task signJar(type: SignJar, dependsOn: jar) {
     onlyIf {
@@ -234,6 +264,15 @@ publishing {
             artifact reobfArtifact
             artifact srcJar
             artifact deobfJar
+
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
+
+                def dependencyNode = dependenciesNode.appendNode('dependency')
+                dependencyNode.appendNode('groupId', "org.zeith.hammerlib")
+                dependencyNode.appendNode('artifactId', "HammerLib-${config.mc_version}")
+                dependencyNode.appendNode('version', config.hl_version)
+            }
         }
     }
     repositories {

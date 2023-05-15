@@ -1,8 +1,6 @@
 package org.zeith.onlinedisplays.net;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.network.FriendlyByteBuf;
 import org.zeith.hammerlib.net.IPacket;
 import org.zeith.hammerlib.net.PacketContext;
 import org.zeith.onlinedisplays.OnlineDisplays;
@@ -29,14 +27,14 @@ public class PacketRequestImageData
 	}
 	
 	@Override
-	public void write(PacketBuffer buf)
+	public void write(FriendlyByteBuf buf)
 	{
 		buf.writeUtf(hash);
 		buf.writeUtf(optURL);
 	}
 	
 	@Override
-	public void read(PacketBuffer buf)
+	public void read(FriendlyByteBuf buf)
 	{
 		hash = buf.readUtf();
 		optURL = buf.readUtf();
@@ -45,10 +43,10 @@ public class PacketRequestImageData
 	@Override
 	public void serverExecute(PacketContext ctx)
 	{
-		ServerPlayerEntity sender = ctx.getSender();
+		var sender = ctx.getSender();
 		if(sender != null)
 		{
-			ServerWorld level = sender.getLevel();
+			var level = sender.getLevel();
 			
 			ImageData image = LevelImageStorage.get(level).load(hash);
 			if(image != null)

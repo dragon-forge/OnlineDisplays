@@ -1,7 +1,7 @@
 package org.zeith.onlinedisplays;
 
-import net.minecraft.server.dedicated.PropertyManager;
-import net.minecraft.util.registry.DynamicRegistries;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.server.dedicated.Settings;
 import net.minecraftforge.common.util.SortedProperties;
 
 import java.io.IOException;
@@ -11,7 +11,7 @@ import java.nio.file.Path;
 import java.util.Properties;
 
 public class OnlineDisplaysProperties
-		extends PropertyManager<OnlineDisplaysProperties>
+		extends Settings<OnlineDisplaysProperties>
 {
 	public final boolean survivalMode = this.get("survival-mode", false);
 	
@@ -37,7 +37,7 @@ public class OnlineDisplaysProperties
 	}
 	
 	@Override
-	protected OnlineDisplaysProperties reload(DynamicRegistries regs, Properties props)
+	protected OnlineDisplaysProperties reload(RegistryAccess regs, Properties props)
 	{
 		return new OnlineDisplaysProperties(props);
 	}

@@ -1,12 +1,12 @@
 package org.zeith.onlinedisplays.client.texture;
 
-import net.minecraft.client.renderer.texture.*;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
+import com.mojang.blaze3d.platform.NativeImage;
+import net.minecraft.client.renderer.texture.SimpleTexture;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 public class BufferedTexture
@@ -49,7 +49,7 @@ public class BufferedTexture
 	}
 	
 	@Override
-	protected TextureData getTextureImage(IResourceManager resources)
+	protected TextureImage getTextureImage(ResourceManager resources)
 	{
 		try(ByteArrayInputStream in = new ByteArrayInputStream(data.get()))
 		{
@@ -57,16 +57,10 @@ public class BufferedTexture
 			width = img.getWidth();
 			height = img.getHeight();
 			
-			return new TextureData(null, img);
+			return new TextureImage(null, img);
 		} catch(IOException e)
 		{
-			return new SimpleTexture.TextureData(e);
+			return new TextureImage(e);
 		}
-	}
-	
-	@Override
-	public void reset(TextureManager p_215244_1_, IResourceManager p_215244_2_, ResourceLocation p_215244_3_, Executor p_215244_4_)
-	{
-		super.reset(p_215244_1_, p_215244_2_, p_215244_3_, p_215244_4_);
 	}
 }

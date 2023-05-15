@@ -1,8 +1,9 @@
 package org.zeith.onlinedisplays;
 
-import net.minecraft.server.dedicated.ServerProperties;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.*;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.dedicated.Settings;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.common.Mod;
@@ -12,6 +13,7 @@ import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.zeith.hammerlib.core.adapter.LanguageAdapter;
+import org.zeith.hammerlib.util.CommonMessages;
 import org.zeith.onlinedisplays.ext.gif.ExtGIF;
 import org.zeith.onlinedisplays.ext.webp.ExtWebP;
 import org.zeith.onlinedisplays.proxy.ClientODProxy;
@@ -40,23 +42,29 @@ public class OnlineDisplays
 	
 	public OnlineDisplays()
 	{
+		CommonMessages.printMessageOnIllegalRedistribution(OnlineDisplays.class,
+				LOG, "OnlineDisplays", "https://www.curseforge.com/minecraft/mc-mods/online-displays");
+		
 		PROXY.construct();
 		LanguageAdapter.registerMod(MOD_ID);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
 		
-		File props = new File(getModConfigDir(), "main.properties");
-		Properties prop;
-		if(props.isFile()) prop = ServerProperties.loadFromFile(props.toPath());
-		else prop = new Properties();
-		modSettings = new OnlineDisplaysProperties(prop);
-		modSettings.store(props.toPath());
-		
+		getModSettings();
 		InterModComms.sendTo(MOD_ID, "add_ext", ExtWebP::new); // Add support for WebP
 		InterModComms.sendTo(MOD_ID, "add_ext", ExtGIF::new); // Add support for GIF
 	}
 	
 	public static OnlineDisplaysProperties getModSettings()
 	{
+		if(modSettings == null)
+		{
+			File props = new File(getModConfigDir(), "main.properties");
+			Properties prop;
+			if(props.isFile()) prop = Settings.loadFromFile(props.toPath());
+			else prop = new Properties();
+			modSettings = new OnlineDisplaysProperties(prop);
+			modSettings.store(props.toPath());
+		}
 		return modSettings;
 	}
 	
@@ -82,16 +90,16 @@ public class OnlineDisplays
 		return new ResourceLocation(MOD_ID, path);
 	}
 	
-	public static TextComponent EMPTY_TXT = new StringTextComponent("");
+	public static Component EMPTY_TXT = Component.literal("");
 	
-	public static TextComponent gui(String path)
+	public static MutableComponent gui(String path)
 	{
-		return new TranslationTextComponent("gui." + MOD_ID + "." + path);
+		return Component.translatable("gui." + MOD_ID + "." + path);
 	}
 	
-	public static TextComponent info(String path)
+	public static MutableComponent info(String path)
 	{
-		return new TranslationTextComponent("info." + MOD_ID + "." + path);
+		return Component.translatable("info." + MOD_ID + "." + path);
 	}
 	
 	public static File getModConfigDir()

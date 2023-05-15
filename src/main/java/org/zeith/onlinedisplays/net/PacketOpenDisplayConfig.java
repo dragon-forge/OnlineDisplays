@@ -1,9 +1,8 @@
 package org.zeith.onlinedisplays.net;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.zeith.hammerlib.net.*;
@@ -31,7 +30,7 @@ public class PacketOpenDisplayConfig
 	}
 	
 	@Override
-	public void write(PacketBuffer buf)
+	public void write(FriendlyByteBuf buf)
 	{
 		buf.writeLong(pos.asLong());
 		buf.writeNbt(mat.serializeNBT());
@@ -39,7 +38,7 @@ public class PacketOpenDisplayConfig
 	}
 	
 	@Override
-	public void read(PacketBuffer buf)
+	public void read(FriendlyByteBuf buf)
 	{
 		pos = BlockPos.of(buf.readLong());
 		mat = new TileDisplay.DisplayMatrix();
@@ -53,7 +52,7 @@ public class PacketOpenDisplayConfig
 	public void clientExecute(PacketContext ctx)
 	{
 		Minecraft mc = Minecraft.getInstance();
-		ClientWorld level = mc.level;
+		var level = mc.level;
 		if(level != null)
 		{
 			TileDisplay display = Cast.cast(level.getBlockEntity(pos), TileDisplay.class);

@@ -1,8 +1,8 @@
 package org.zeith.onlinedisplays.proxy;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.LogicalSide;
 import org.zeith.hammerlib.net.PacketContext;
 import org.zeith.hammerlib.util.java.Cast;
@@ -20,16 +20,16 @@ public class CommonODProxy
 	{
 	}
 	
-	public boolean isLocalPlayer(ServerPlayerEntity player)
+	public boolean isLocalPlayer(ServerPlayer player)
 	{
 		return false;
 	}
 	
-	public IImageDataContainer getImageContainer(World world)
+	public IImageDataContainer getImageContainer(Level world)
 	{
-		if(world instanceof ServerWorld)
+		if(world instanceof ServerLevel sl)
 		{
-			return LevelImageStorage.get((ServerWorld) world);
+			return LevelImageStorage.get(sl);
 		}
 		
 		return IImageDataContainer.DUMMY;
@@ -60,7 +60,7 @@ public class CommonODProxy
 		{
 			if(session.isValid())
 			{
-				ServerPlayerEntity sender = ctx.getSender();
+				ServerPlayer sender = ctx.getSender();
 				if(sender != null)
 				{
 					TileDisplay display = Cast.cast(sender.level.getBlockEntity(session.getPosition()), TileDisplay.class);

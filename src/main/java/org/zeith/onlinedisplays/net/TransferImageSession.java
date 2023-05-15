@@ -1,9 +1,9 @@
 package org.zeith.onlinedisplays.net;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.common.util.LogicalSidedProvider;
 import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.LogicalSidedProvider;
 import org.zeith.hammerlib.net.MainThreaded;
 import org.zeith.hammerlib.net.PacketContext;
 import org.zeith.hammerlib.net.lft.*;
@@ -22,7 +22,7 @@ public class TransferImageSession
 	Exception error;
 	boolean valid;
 	
-	public static void sendTo(ImageData data, Predicate<ServerPlayerEntity> predicate)
+	public static void sendTo(ImageData data, Predicate<ServerPlayer> predicate)
 	{
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		DataOutputStream out = new DataOutputStream(baos);
@@ -40,8 +40,8 @@ public class TransferImageSession
 				.addData(baos.toByteArray())
 				.build();
 		
-		MinecraftServer mcs = LogicalSidedProvider.INSTANCE.get(LogicalSide.SERVER);
-		if(mcs != null) for(ServerPlayerEntity mp : mcs.getPlayerList().getPlayers())
+		MinecraftServer mcs = (MinecraftServer) LogicalSidedProvider.WORKQUEUE.get(LogicalSide.SERVER);
+		if(mcs != null) for(ServerPlayer mp : mcs.getPlayerList().getPlayers())
 			if(predicate.test(mp))
 			{
 				if(OnlineDisplays.PROXY.isLocalPlayer(mp))

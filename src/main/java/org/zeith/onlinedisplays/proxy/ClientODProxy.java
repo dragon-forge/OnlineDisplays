@@ -1,18 +1,12 @@
 package org.zeith.onlinedisplays.proxy;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.server.integrated.IntegratedServer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
-import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.model.ModelLoader;
+import net.minecraft.client.server.IntegratedServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.zeith.hammerlib.net.PacketContext;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.onlinedisplays.OnlineDisplays;
@@ -30,35 +24,25 @@ public class ClientODProxy
 	{
 		super.construct();
 		MinecraftForge.EVENT_BUS.addListener(this::clientTick);
-		
-		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
-		
-		bus.addListener(this::addModels);
 	}
 	
 	@Override
-	public boolean isLocalPlayer(ServerPlayerEntity player)
+	public boolean isLocalPlayer(ServerPlayer player)
 	{
-		if(player.getServer() instanceof IntegratedServer)
-		{
-			IntegratedServer is = (IntegratedServer) player.getServer();
+		if(player.getServer() instanceof IntegratedServer is)
 			return is.isSingleplayerOwner(player.getGameProfile());
-		}
 		
 		return super.isLocalPlayer(player);
 	}
 	
 	@Override
-	public IImageDataContainer getImageContainer(World world)
+	public IImageDataContainer getImageContainer(Level world)
 	{
 		if(world.isClientSide) return ClientImageStorage.INSTANCE;
 		return super.getImageContainer(world);
 	}
-	
-	private void addModels(ModelRegistryEvent e)
-	{
-		ModelLoader.addSpecialModel(new ResourceLocation(OnlineDisplays.MOD_ID, "item/display_inventory"));
-	}
+
+//	private void addModels(ModelRegistryEvent e) {ModelLoader.addSpecialModel(new ResourceLocation(OnlineDisplays.MOD_ID, "item/display_inventory"));}
 	
 	private boolean inLevel;
 	
@@ -87,7 +71,7 @@ public class ClientODProxy
 	@Override
 	public boolean isCreative()
 	{
-		ClientPlayerEntity player = Minecraft.getInstance().player;
+		var player = Minecraft.getInstance().player;
 		return player != null && player.isCreative();
 	}
 	

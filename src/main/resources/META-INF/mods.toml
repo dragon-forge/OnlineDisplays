@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[36,)"
+loaderVersion = "[43,)"
 issueTrackerURL = "https://github.com/dragon-forge/OnlineDisplays/issues"
 license = "All rights reserved"
 
@@ -21,20 +21,20 @@ Additionally, the lighting of it may be disabled, essentially rendering it as "e
 [[dependencies.onlinedisplays]]
 modId = "forge"
 mandatory = true
-versionRange = "[36,)"
-ordering = "NONE"
+versionRange = "[43,)"
+ordering = "NONE" # NONE/BEFORE/AFTER
 side = "BOTH"
 
 [[dependencies.onlinedisplays]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.16.5]"
+versionRange = "[1.19.2,1.20)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.onlinedisplays]]
 modId = "hammerlib"
 mandatory = true
-versionRange = "[16.4.31,)"
+versionRange = "[19.3.51,)"
 ordering = "NONE"
 side = "BOTH"

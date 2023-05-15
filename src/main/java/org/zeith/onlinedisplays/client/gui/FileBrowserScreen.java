@@ -1,11 +1,12 @@
 package org.zeith.onlinedisplays.client.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.gui.widget.list.ExtendedList;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.AbstractSelectionList;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.screens.Screen;
 import org.zeith.hammerlib.client.utils.*;
 import org.zeith.onlinedisplays.OnlineDisplays;
 import org.zeith.onlinedisplays.client.texture.IDisplayableTexture;
@@ -45,20 +46,19 @@ public class FileBrowserScreen
 		int x = width / 2 - 100;
 		int y = height / 4 - 10;
 		
-		this.fileList = new FileListWidget(this, x, y, 200, 160, rootDirectory);
-		this.children.add(this.fileList);
+		this.fileList = addWidget(new FileListWidget(this, x, y, 200, 160, rootDirectory));
 		this.setFocused(this.fileList);
 		
 		y += 162;
 		
-		this.addButton(new Button(x, y, 99, 20, OnlineDisplays.gui("cancel"), (button) ->
+		this.addWidget(new Button(x, y, 99, 20, OnlineDisplays.gui("cancel"), (button) ->
 		{
 			this.cancel();
 		}));
 		
 		x += 101;
 		
-		this.addButton(new Button(x, y, 99, 20, OnlineDisplays.gui("select"), (button) ->
+		this.addWidget(new Button(x, y, 99, 20, OnlineDisplays.gui("select"), (button) ->
 		{
 			this.selectFile();
 		}));
@@ -81,14 +81,13 @@ public class FileBrowserScreen
 	}
 	
 	@Override
-	public void render(MatrixStack mat, int mouseX, int mouseY, float partialTicks)
+	public void render(PoseStack mat, int mouseX, int mouseY, float partialTicks)
 	{
 		int x = width / 2 - 100;
 		int y = height / 4 - 10;
 		
 		this.renderBackground(mat);
-		Scissors.begin();
-		Scissors.scissor(x, y, 200, 160);
+		Scissors.begin(x, y, 200, 160);
 		this.fileList.render(mat, mouseX, mouseY, partialTicks);
 		Scissors.end();
 		
@@ -103,7 +102,7 @@ public class FileBrowserScreen
 	}
 	
 	private class FileListWidget
-			extends ExtendedList<FileListEntry>
+			extends AbstractSelectionList<FileListEntry>
 	{
 		private final FileBrowserScreen parentScreen;
 		private File rootDirectory;
@@ -159,17 +158,22 @@ public class FileBrowserScreen
 		{
 			return this.width;
 		}
+		
+		@Override
+		public void updateNarration(NarrationElementOutput out)
+		{
+		}
 	}
 	
 	private class FileListEntry
-			extends ExtendedList.AbstractListEntry<FileListEntry>
+			extends AbstractSelectionList.Entry<FileListEntry>
 	{
 		private final File file;
-		private final FontRenderer font;
+		private final Font font;
 		private final FileListWidget widget;
 		private boolean isRoot;
 		
-		public FileListEntry(File file, FontRenderer font, FileListWidget widget, boolean isRoot)
+		public FileListEntry(File file, Font font, FileListWidget widget, boolean isRoot)
 		{
 			this.file = file;
 			this.font = font;
@@ -183,7 +187,7 @@ public class FileBrowserScreen
 		}
 		
 		@Override
-		public void render(MatrixStack mat, int id, int y, int x, int width, int heightPadded, int p_230432_7_, int p_230432_8_, boolean hovered, float p_230432_10_)
+		public void render(PoseStack mat, int id, int y, int x, int width, int heightPadded, int p_230432_7_, int p_230432_8_, boolean hovered, float p_230432_10_)
 		{
 			boolean isSelected = widget.getSelected() == this;
 			String name = getName();
@@ -192,15 +196,14 @@ public class FileBrowserScreen
 			{
 				Icon icon = FileSystemView.getFileSystemView().getSystemIcon(file);
 				
-				if(icon instanceof ImageIcon)
+				if(icon instanceof ImageIcon ii)
 				{
-					ImageIcon ii = (ImageIcon) icon;
 					IDisplayableTexture tx = OnlineTextureParser.getTextureFromIcon(ii);
 					if(tx != null)
 					{
 						FXUtils.bindTexture(tx.getPath(System.currentTimeMillis()));
 						RenderSystem.enableBlend();
-						RenderSystem.color4f(1F, 1F, 1F, 1F);
+						RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
 						RenderUtils.drawFullTexturedModalRect(x - 0.5F, y - 0.5F, 8, 8);
 					}
 				}

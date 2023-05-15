@@ -1,6 +1,6 @@
 package org.zeith.onlinedisplays.net;
 
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import org.zeith.hammerlib.net.MainThreaded;
 import org.zeith.hammerlib.net.PacketContext;
 import org.zeith.hammerlib.net.lft.ITransportAcceptor;

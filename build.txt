@@ -2,22 +2,19 @@
 mod_id=onlinedisplays
 archive_name=OnlineDisplays
 mod_name=Online Displays
-mod_version=16.2.4
+mod_version=19.2.0
 
 # Maven Info
 maven_group=org.zeith.onlinedisplays
+hl_version=19.3.51
 
 # MC Info
-mc_version=1.16.5
-forge_version=36.2.34
-hl_version=16.4.31
-
-# MCP Info
-mcp_ch=official
-mcp_vr=1.16.5
+mc_version=1.19.2
+forge_version=43.2.0
+mc_user=Zeitheron,63fa4c485b5640809727d5d59663e603
 
 # Misc Info
-java=1.8
+java=17
 
 # Project ID on CurseForge
 cf_project=785509

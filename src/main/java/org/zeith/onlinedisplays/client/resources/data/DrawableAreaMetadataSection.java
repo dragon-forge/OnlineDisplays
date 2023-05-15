@@ -1,8 +1,8 @@
 package org.zeith.onlinedisplays.client.resources.data;
 
 import com.google.gson.JsonObject;
-import net.minecraft.resources.data.IMetadataSectionSerializer;
-import net.minecraft.util.JSONUtils;
+import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
+import net.minecraft.util.GsonHelper;
 import org.zeith.onlinedisplays.OnlineDisplays;
 
 public class DrawableAreaMetadataSection
@@ -13,16 +13,16 @@ public class DrawableAreaMetadataSection
 	
 	public DrawableAreaMetadataSection(JsonObject obj)
 	{
-		this.x = JSONUtils.getAsInt(obj, "x");
-		this.y = JSONUtils.getAsInt(obj, "y");
-		this.width = JSONUtils.getAsInt(obj, "width");
-		this.height = JSONUtils.getAsInt(obj, "height");
-		this.textureWidth = JSONUtils.getAsInt(obj, "tx_width");
-		this.textureHeight = JSONUtils.getAsInt(obj, "tx_height");
+		this.x = GsonHelper.getAsInt(obj, "x");
+		this.y = GsonHelper.getAsInt(obj, "y");
+		this.width = GsonHelper.getAsInt(obj, "width");
+		this.height = GsonHelper.getAsInt(obj, "height");
+		this.textureWidth = GsonHelper.getAsInt(obj, "tx_width");
+		this.textureHeight = GsonHelper.getAsInt(obj, "tx_height");
 	}
 	
 	public static class Serializer
-			implements IMetadataSectionSerializer<DrawableAreaMetadataSection>
+			implements MetadataSectionSerializer<DrawableAreaMetadataSection>
 	{
 		@Override
 		public String getMetadataSectionName()

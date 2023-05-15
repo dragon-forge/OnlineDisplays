@@ -1,6 +1,6 @@
 package org.zeith.onlinedisplays.client.texture;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public interface IDisplayableTexture
 {

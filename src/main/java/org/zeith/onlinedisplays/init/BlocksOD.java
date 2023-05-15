@@ -1,8 +1,7 @@
 package org.zeith.onlinedisplays.init;
 
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.material.Material;
-import net.minecraftforge.common.ToolType;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.material.Material;
 import org.zeith.hammerlib.annotations.RegistryName;
 import org.zeith.hammerlib.annotations.SimplyRegister;
 import org.zeith.onlinedisplays.OnlineDisplays;
@@ -13,9 +12,7 @@ public interface BlocksOD
 {
 	@RegistryName("display")
 	BlockDisplay DISPLAY = new BlockDisplay(
-			AbstractBlock.Properties.of(Material.STONE)
-					.harvestTool(ToolType.PICKAXE)
-					.harvestLevel(2)
+			Block.Properties.of(Material.STONE)
 					.strength(OnlineDisplays.getModSettings().survivalMode ? 4 : -1F)
 					.dynamicShape()
 	);

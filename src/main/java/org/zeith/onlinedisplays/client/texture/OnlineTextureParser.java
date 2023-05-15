@@ -1,9 +1,9 @@
 package org.zeith.onlinedisplays.client.texture;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.Texture;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.onlinedisplays.OnlineDisplays;
 import org.zeith.onlinedisplays.util.ExtensionParser;
@@ -30,7 +30,7 @@ public class OnlineTextureParser
 		if(cachedTex != null) return cachedTex;
 		
 		TextureManager txm = Minecraft.getInstance().getTextureManager();
-		Texture tx = txm.getTexture(tex);
+		AbstractTexture tx = txm.getTexture(tex);
 		if(!(tx instanceof IDisplayableTexture))
 		{
 			txm.register(tex, tx = new BufferedTexture(tex, internalHash, () ->
@@ -61,7 +61,7 @@ public class OnlineTextureParser
 		if(image == null) return null;
 		
 		TextureManager txm = Minecraft.getInstance().getTextureManager();
-		Texture tx = txm.getTexture(tex);
+		AbstractTexture tx = txm.getTexture(tex);
 		
 		if(!(tx instanceof BufferedTexture))
 		{
@@ -114,7 +114,7 @@ public class OnlineTextureParser
 		if(cachedTex != null) return cachedTex;
 		
 		TextureManager txm = Minecraft.getInstance().getTextureManager();
-		Texture tx = txm.getTexture(tex);
+		AbstractTexture tx = txm.getTexture(tex);
 		
 		if(!(tx instanceof IDisplayableTexture))
 		{

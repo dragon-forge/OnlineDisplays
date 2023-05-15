@@ -1,6 +1,6 @@
 package org.zeith.onlinedisplays.client.texture;
 
-import net.minecraft.util.StringUtils;
+import net.minecraft.util.StringUtil;
 import org.zeith.hammerlib.net.Network;
 import org.zeith.onlinedisplays.OnlineDisplays;
 import org.zeith.onlinedisplays.api.IImageDataContainer;
@@ -101,7 +101,7 @@ public class ClientImageStorage
 	
 	public static ImageData load(String hash)
 	{
-		if(StringUtils.isNullOrEmpty(hash)) return null;
+		if(StringUtil.isNullOrEmpty(hash)) return null;
 		
 		File fl = getHashFile(hash);
 		

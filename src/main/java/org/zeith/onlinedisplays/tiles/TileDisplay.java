@@ -1,14 +1,16 @@
 package org.zeith.onlinedisplays.tiles;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.StringUtils;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.StringUtil;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.zeith.hammerlib.api.io.IAutoNBTSerializable;
@@ -58,9 +60,9 @@ public class TileDisplay
 	
 	public IDisplayableTexture image;
 	
-	public TileDisplay()
+	public TileDisplay(BlockPos pos, BlockState state)
 	{
-		super(TilesOD.DISPLAY);
+		super(TilesOD.DISPLAY, pos, state);
 		dispatcher.registerProperty("url", imageURL);
 		dispatcher.registerProperty("hash", imageHash);
 		dispatcher.registerProperty("loaded", isLoaded);
@@ -91,13 +93,11 @@ public class TileDisplay
 		{
 			MinecraftServer server = level.getServer();
 			
-			if(server != null && level instanceof ServerWorld)
+			if(server != null && level instanceof ServerLevel sw)
 			{
-				ServerWorld sw = (ServerWorld) level;
-				
 				LevelImageStorage storage = LevelImageStorage.get(sw);
 				
-				if(!StringUtils.isNullOrEmpty(imageURL.get()) && OnlineDisplays.URL_TEST.test(imageURL.get()))
+				if(!StringUtil.isNullOrEmpty(imageURL.get()) && OnlineDisplays.URL_TEST.test(imageURL.get()))
 				{
 					// We refresh the image once in a while (for our case, once per server lifetime)
 					// To ensure we have the most up-to-date image.
@@ -106,7 +106,7 @@ public class TileDisplay
 					if(hash != null) imageHash.set(hash);
 				}
 				
-				final SUpdateTileEntityPacket pkt = getUpdatePacket();
+				final var pkt = getUpdatePacket();
 				if(pkt != null)
 					sw.getChunkSource().chunkMap.getPlayers(new ChunkPos(worldPosition), false)
 							.forEach(e -> e.connection.send(pkt));
@@ -154,8 +154,8 @@ public class TileDisplay
 		}
 		
 		ImageData id = new ImageData(fileName, newValue);
-		if(level instanceof ServerWorld)
-			LevelImageStorage.get((ServerWorld) level).save(id);
+		if(level instanceof ServerLevel sl)
+			LevelImageStorage.get(sl).save(id);
 		
 		String hash = id.getHash();
 		updateURL("local/" + hash);
@@ -177,8 +177,8 @@ public class TileDisplay
 		}
 		
 		ImageData id = new ImageData(fileName, newValue);
-		if(level instanceof ServerWorld)
-			LevelImageStorage.get((ServerWorld) level).save(id);
+		if(level instanceof ServerLevel sl)
+			LevelImageStorage.get(sl).save(id);
 		
 		String hash = id.getHash();
 		imageHash.set(hash);
@@ -189,24 +189,17 @@ public class TileDisplay
 	}
 	
 	@Override
-	public AxisAlignedBB getRenderBoundingBox()
+	public AABB getRenderBoundingBox()
 	{
 		return INFINITE_EXTENT_AABB;
 	}
 	
 	@Override
-	public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet)
+	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet)
 	{
 		if(OnlineDisplays.PROXY.isCurrentlyEditing(this))
 			return;
 		super.onDataPacket(net, packet);
-	}
-	
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public double getViewDistance()
-	{
-		return 10000;
 	}
 	
 	public static class DisplayMatrix
@@ -237,7 +230,7 @@ public class TileDisplay
 		public float rotateZ;
 		
 		@OnlyIn(Dist.CLIENT)
-		public void apply(MatrixStack pose)
+		public void apply(PoseStack pose)
 		{
 			pose.translate(translateX, translateY, translateZ);
 			

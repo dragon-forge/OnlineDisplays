@@ -1,6 +1,6 @@
 package org.zeith.onlinedisplays.net;
 
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.zeith.hammerlib.net.*;
@@ -22,13 +22,13 @@ public class PacketClearRequestFlag
 	}
 	
 	@Override
-	public void write(PacketBuffer buf)
+	public void write(FriendlyByteBuf buf)
 	{
 		buf.writeUtf(hash);
 	}
 	
 	@Override
-	public void read(PacketBuffer buf)
+	public void read(FriendlyByteBuf buf)
 	{
 		hash = buf.readUtf();
 	}
