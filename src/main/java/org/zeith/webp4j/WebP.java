@@ -21,9 +21,7 @@ public class WebP
 	{
 		if(!this.webPExe.isFile())
 		{
-			String path = "/" + this.getClass().getPackage().getName().replace('.', '/') + "/webp.sup";
-			
-			try(InputStream in = WebP.class.getResourceAsStream(path))
+			try(InputStream in = WebP.class.getResourceAsStream("/assets/onlinedisplays/webp.sup"))
 			{
 				Files.copy(in, this.webPExe.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			}

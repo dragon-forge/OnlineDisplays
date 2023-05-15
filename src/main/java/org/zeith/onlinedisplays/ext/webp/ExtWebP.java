@@ -40,7 +40,7 @@ public class ExtWebP
 			if(nfn.toLowerCase(Locale.ROOT).endsWith(".webp"))
 				nfn = nfn.substring(0, nfn.length() - 5) + ".png";
 			
-			webpFile = File.createTempFile("dragonviewer_webp", "tmpnet.webp");
+			webpFile = File.createTempFile("onlinedisplays_webp", "tmpnet.webp");
 			Files.write(webpFile.toPath(), raw.getData());
 			Optional<byte[]> png = WEBP.convert(webpFile);
 			webpFile.delete();
