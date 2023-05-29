@@ -57,6 +57,12 @@ public class GuiDisplayConfig
 	
 	ImageButtonAccessor emissiveToggle;
 	
+	public void setURL(String value)
+	{
+		if(url != null)
+			url.setValue(value);
+	}
+	
 	@Override
 	protected void init()
 	{

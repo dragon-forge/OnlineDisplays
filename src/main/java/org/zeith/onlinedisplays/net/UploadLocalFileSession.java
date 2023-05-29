@@ -1,6 +1,8 @@
 package org.zeith.onlinedisplays.net;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.thread.BlockableEventLoop;
+import net.minecraftforge.common.util.LogicalSidedProvider;
 import org.zeith.hammerlib.net.MainThreaded;
 import org.zeith.hammerlib.net.PacketContext;
 import org.zeith.hammerlib.net.lft.ITransportAcceptor;
@@ -101,6 +103,10 @@ public class UploadLocalFileSession
 	@Override
 	public void onTransmissionComplete(PacketContext ctx)
 	{
-		OnlineDisplays.PROXY.uploadServerPicture(this, ctx);
+		BlockableEventLoop<?> executor = LogicalSidedProvider.WORKQUEUE.get(ctx.getSide());
+		executor.submitAsync(() ->
+		{
+			OnlineDisplays.PROXY.uploadServerPicture(this, ctx);
+		});
 	}
 }

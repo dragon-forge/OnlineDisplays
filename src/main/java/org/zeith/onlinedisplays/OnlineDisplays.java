@@ -49,6 +49,8 @@ public class OnlineDisplays
 		LanguageAdapter.registerMod(MOD_ID);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
 		
+		LOG.info("Launching dev build v3"); // FIXME: remove.
+		
 		getModSettings();
 		InterModComms.sendTo(MOD_ID, "add_ext", ExtWebP::new); // Add support for WebP
 		InterModComms.sendTo(MOD_ID, "add_ext", ExtGIF::new); // Add support for GIF
@@ -75,10 +77,9 @@ public class OnlineDisplays
 			if(msg.getMethod().equalsIgnoreCase("add_ext"))
 			{
 				Object o = msg.getMessageSupplier().get();
-				if(o instanceof ExtensionParser)
+				if(o instanceof ExtensionParser parser)
 				{
-					ExtensionParser parser = (ExtensionParser) o;
-					LOG.info("Registering extention parser for ." + parser.extension + " files from " + msg.getSenderModId());
+					LOG.info("Registering extension parser for ." + parser.extension + " files from " + msg.getSenderModId());
 					EXTENSION_PARSERS.put(parser.extension, parser);
 				}
 			}
@@ -111,7 +112,7 @@ public class OnlineDisplays
 	
 	public static File getModDir()
 	{
-		File f = FMLPaths.GAMEDIR.get().resolve("." + MOD_ID).toFile();
+		File f = FMLPaths.GAMEDIR.get().resolve("$" + MOD_ID).toFile();
 		if(!f.isDirectory())
 			f.mkdirs();
 		return f;

@@ -4,14 +4,14 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.LogicalSide;
+import org.zeith.hammerlib.net.Network;
 import org.zeith.hammerlib.net.PacketContext;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.onlinedisplays.OnlineDisplays;
 import org.zeith.onlinedisplays.api.IImageDataContainer;
 import org.zeith.onlinedisplays.client.texture.IDisplayableTexture;
 import org.zeith.onlinedisplays.level.LevelImageStorage;
-import org.zeith.onlinedisplays.net.TransferImageSession;
-import org.zeith.onlinedisplays.net.UploadLocalFileSession;
+import org.zeith.onlinedisplays.net.*;
 import org.zeith.onlinedisplays.tiles.TileDisplay;
 
 public class CommonODProxy
@@ -60,15 +60,21 @@ public class CommonODProxy
 		{
 			if(session.isValid())
 			{
+				OnlineDisplays.LOG.info("Saving " + session.getFileName() + " byte[" + session.getImageData().length + "] image for " + session.getPosition());
+				
 				ServerPlayer sender = ctx.getSender();
 				if(sender != null)
 				{
-					TileDisplay display = Cast.cast(sender.level.getBlockEntity(session.getPosition()), TileDisplay.class);
+					var be = sender.level.getBlockEntity(session.getPosition());
+					TileDisplay display = Cast.cast(be, TileDisplay.class);
 					if(display != null)
 					{
 						display.setLocalImage(session.getImageData(), session.getFileName(), sender.getName());
-					}
-				}
+						Network.sendTo(sender, new PacketUpdateURL(display));
+					} else
+						OnlineDisplays.LOG.warn("Unable to find display block at " + session.getPosition() + " (found " + be + ")");
+				} else
+					OnlineDisplays.LOG.warn("Unable to find image sender for " + session.getPosition());
 			} else
 			{
 				OnlineDisplays.LOG.error("Failed to load display at " + session.getPosition(), session.getError());

@@ -40,14 +40,18 @@ public class ExtWebP
 			if(nfn.toLowerCase(Locale.ROOT).endsWith(".webp"))
 				nfn = nfn.substring(0, nfn.length() - 5) + ".png";
 			
+			OnlineDisplays.LOG.info("Attempting to convert WebP " + raw.getHash() + " " + raw.getFileName() + "...");
+			
 			webpFile = File.createTempFile("onlinedisplays_webp", "tmpnet.webp");
 			Files.write(webpFile.toPath(), raw.getData());
 			Optional<byte[]> png = WEBP.convert(webpFile);
 			webpFile.delete();
+			
+			OnlineDisplays.LOG.info("WebP " + raw.getHash() + " " + raw.getFileName() + " converted into " + png.orElse(new byte[0]).length + " bytes of PNG image.");
 			return new ImageData(nfn, png.orElseThrow(NoSuchElementException::new));
 		} catch(Exception e)
 		{
-			e.printStackTrace();
+			OnlineDisplays.LOG.error("Failed to convert WebP image to PNG with error:", e);
 		}
 		if(webpFile != null) webpFile.delete();
 		return super.convert(raw);

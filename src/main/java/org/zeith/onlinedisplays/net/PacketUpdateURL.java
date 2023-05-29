@@ -1,9 +1,13 @@
 package org.zeith.onlinedisplays.net;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.zeith.hammerlib.net.*;
 import org.zeith.hammerlib.util.java.Cast;
+import org.zeith.onlinedisplays.client.gui.GuiDisplayConfig;
 import org.zeith.onlinedisplays.tiles.TileDisplay;
 
 @MainThreaded
@@ -49,6 +53,21 @@ public class PacketUpdateURL
 			{
 				display.updateURL(url);
 			}
+		}
+	}
+	
+	@Override
+	@OnlyIn(Dist.CLIENT)
+	public void clientExecute(PacketContext ctx)
+	{
+		var cl = Minecraft.getInstance().level;
+		if(cl != null)
+		{
+			if(Minecraft.getInstance().screen instanceof GuiDisplayConfig gui && gui.display != null && gui.display.getBlockPos().equals(pos))
+				gui.setURL(url);
+			
+			var display = Cast.cast(cl.getBlockEntity(pos), TileDisplay.class);
+			if(display != null) display.updateURL(url);
 		}
 	}
 }

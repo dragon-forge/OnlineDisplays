@@ -41,8 +41,6 @@ public class ClientODProxy
 		if(world.isClientSide) return ClientImageStorage.INSTANCE;
 		return super.getImageContainer(world);
 	}
-
-//	private void addModels(ModelRegistryEvent e) {ModelLoader.addSpecialModel(new ResourceLocation(OnlineDisplays.MOD_ID, "item/display_inventory"));}
 	
 	private boolean inLevel;
 	

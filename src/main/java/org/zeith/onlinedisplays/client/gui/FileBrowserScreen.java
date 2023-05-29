@@ -51,14 +51,14 @@ public class FileBrowserScreen
 		
 		y += 162;
 		
-		this.addWidget(new Button(x, y, 99, 20, OnlineDisplays.gui("cancel"), (button) ->
+		this.addRenderableWidget(new Button(x, y, 99, 20, OnlineDisplays.gui("cancel"), (button) ->
 		{
 			this.cancel();
 		}));
 		
 		x += 101;
 		
-		this.addWidget(new Button(x, y, 99, 20, OnlineDisplays.gui("select"), (button) ->
+		this.addRenderableWidget(new Button(x, y, 99, 20, OnlineDisplays.gui("select"), (button) ->
 		{
 			this.selectFile();
 		}));

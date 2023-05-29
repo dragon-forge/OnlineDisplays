@@ -61,7 +61,7 @@ public class OnlineTextureParser
 		if(image == null) return null;
 		
 		TextureManager txm = Minecraft.getInstance().getTextureManager();
-		AbstractTexture tx = txm.getTexture(tex);
+		AbstractTexture tx = txm.getTexture(tex, null);
 		
 		if(!(tx instanceof BufferedTexture))
 		{
@@ -114,7 +114,7 @@ public class OnlineTextureParser
 		if(cachedTex != null) return cachedTex;
 		
 		TextureManager txm = Minecraft.getInstance().getTextureManager();
-		AbstractTexture tx = txm.getTexture(tex);
+		AbstractTexture tx = txm.getTexture(tex, null);
 		
 		if(!(tx instanceof IDisplayableTexture))
 		{
