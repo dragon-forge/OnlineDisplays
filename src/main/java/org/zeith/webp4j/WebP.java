@@ -67,6 +67,9 @@ public class WebP
 					{
 						throw e instanceof IOException ie ? ie : new IOException(e);
 					}
+				} else
+				{
+					OnlineDisplays.LOG.info("Marked " + webpPath + " as executable OK.");
 				}
 			}
 			
