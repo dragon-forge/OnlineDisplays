@@ -29,6 +29,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import org.zeith.hammerlib.api.blocks.ICustomBlockItem;
 import org.zeith.hammerlib.api.forge.BlockAPI;
+import org.zeith.hammerlib.core.adapter.CreativeTabAdapter;
 import org.zeith.hammerlib.net.Network;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.onlinedisplays.OnlineDisplays;
@@ -49,6 +50,7 @@ public class BlockDisplay
 	public BlockDisplay(Properties props)
 	{
 		super(props);
+		CreativeTabAdapter.bindTab(this, CreativeModeTab.TAB_REDSTONE);
 	}
 	
 	VoxelShape SHAPE = box(2, 2, 2, 14, 14, 14);
@@ -177,9 +179,7 @@ public class BlockDisplay
 	@Override
 	public BlockItem createBlockItem()
 	{
-		return new BlockItem(this, new Item.Properties()
-				.tab(CreativeModeTab.TAB_REDSTONE)
-		)
+		return new BlockItem(this, new Item.Properties())
 		{
 			@Override
 			public void initializeClient(Consumer<IClientItemExtensions> consumer)

@@ -1,5 +1,6 @@
 package org.zeith.webp4j;
 
+import org.zeith.hammerlib.util.java.OSArch;
 import org.zeith.onlinedisplays.OnlineDisplays;
 
 import java.io.*;

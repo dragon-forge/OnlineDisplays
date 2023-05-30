@@ -35,6 +35,6 @@ side = "BOTH"
 [[dependencies.onlinedisplays]]
 modId = "hammerlib"
 mandatory = true
-versionRange = "[19.3.56,)"
+versionRange = "[19.3.57,)"
 ordering = "NONE"
 side = "BOTH"
