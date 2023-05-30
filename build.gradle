@@ -224,10 +224,10 @@ modrinth {
                 if (one.startsWith("@")) {
                     def pars = one.substring(1).split(":", 2)
                     if (pars[0].equalsIgnoreCase("m")) {
-                        required.project pars[1]
+                        required.project pars[1].trim()
                     }
                 } else
-                    required.project one
+                    required.project one.trim()
             }
 
         mods = (config.optional_mods as String).split(";")
@@ -237,10 +237,36 @@ modrinth {
                 if (one.startsWith("@")) {
                     def pars = one.substring(1).split(":", 2)
                     if (pars[0].equalsIgnoreCase("m")) {
-                        optional.project pars[1]
+                        optional.project pars[1].trim()
                     }
                 } else
-                    optional.project one
+                    optional.project one.trim()
+            }
+
+        mods = (config.incompatible_mods as String).split(";")
+        if (mods.length > 0 && (mods.length > 1 || !mods[0].isEmpty()))
+            for (final def one in mods) {
+                if (one.isBlank()) continue
+                if (one.startsWith("@")) {
+                    def pars = one.substring(1).split(":", 2)
+                    if (pars[0].equalsIgnoreCase("m")) {
+                        incompatible.project pars[1].trim()
+                    }
+                } else
+                    incompatible.project one.trim()
+            }
+
+        mods = (config.embedded_mods as String).split(";")
+        if (mods.length > 0 && (mods.length > 1 || !mods[0].isEmpty()))
+            for (final def one in mods) {
+                if (one.isBlank()) continue
+                if (one.startsWith("@")) {
+                    def pars = one.substring(1).split(":", 2)
+                    if (pars[0].equalsIgnoreCase("m")) {
+                        embedded.project pars[1].trim()
+                    }
+                } else
+                    embedded.project one.trim()
             }
     }
 }
@@ -265,10 +291,10 @@ curseforge {
                     if (one.startsWith("@")) {
                         def pars = one.substring(1).split(":", 2)
                         if (pars[0].equalsIgnoreCase("c")) {
-                            requiredDependency pars[1]
+                            requiredDependency pars[1].trim()
                         }
                     } else
-                        requiredDependency one
+                        requiredDependency one.trim()
                 }
 
             mods = (config.optional_mods as String).split(";")
@@ -278,10 +304,36 @@ curseforge {
                     if (one.startsWith("@")) {
                         def pars = one.substring(1).split(":", 2)
                         if (pars[0].equalsIgnoreCase("c")) {
-                            optionalDependency pars[1]
+                            optionalDependency pars[1].trim()
                         }
                     } else
-                        optionalDependency one
+                        optionalDependency one.trim()
+                }
+
+            mods = (config.incompatible_mods as String).split(";")
+            if (mods.length > 0 && (mods.length > 1 || !mods[0].isEmpty()))
+                for (final def one in mods) {
+                    if (one.isBlank()) continue
+                    if (one.startsWith("@")) {
+                        def pars = one.substring(1).split(":", 2)
+                        if (pars[0].equalsIgnoreCase("c")) {
+                            incompatible pars[1].trim()
+                        }
+                    } else
+                        incompatible one.trim()
+                }
+
+            mods = (config.embedded_mods as String).split(";")
+            if (mods.length > 0 && (mods.length > 1 || !mods[0].isEmpty()))
+                for (final def one in mods) {
+                    if (one.isBlank()) continue
+                    if (one.startsWith("@")) {
+                        def pars = one.substring(1).split(":", 2)
+                        if (pars[0].equalsIgnoreCase("c")) {
+                            embeddedLibrary pars[1].trim()
+                        }
+                    } else
+                        embeddedLibrary one.trim()
                 }
         }
     }

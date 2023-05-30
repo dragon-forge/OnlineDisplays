@@ -20,8 +20,15 @@ java=17
 cf_project=785509
 modrinth_project=bhEwCNbH
 
-required_mods=@m:PlkSuVtM;@c:hammer-lib;
+# List of mods separated by ;
+# If a specific mod for one platform is needed, @m: or @c: prefixes are used.
+# Example for adding Hammer Lib for both Modrinth & CurseForge:
+# @m:PlkSuVtM;@c:hammer-lib;
+# Which can be simplified to be just "hammer-lib" since the slug is the same on both platforms.
+required_mods=hammer-lib;
 optional_mods=
+incompatible_mods=
+embedded_mods=
 
 # alpha, beta, release
 release_type=release
