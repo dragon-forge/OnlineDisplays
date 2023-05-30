@@ -56,6 +56,7 @@ public class GuiDisplayConfig
 	EditBox sx, sy;
 	
 	ImageButtonAccessor emissiveToggle;
+	ImageButton emissiveToggleBtn, localFileBtn;
 	
 	public void setURL(String value)
 	{
@@ -66,14 +67,12 @@ public class GuiDisplayConfig
 	@Override
 	protected void init()
 	{
-		this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
-		
 		guiLeft = (width - xSize) / 2;
 		guiTop = (height - ySize) / 2;
 		super.init();
 		
 		String pv = url != null ? url.getValue() : display.imageURL.get();
-		url = addWidget(new EditBox(font, guiLeft + 7, guiTop + 19, 142, 18, OnlineDisplays.gui("url")));
+		url = addRenderableWidget(new EditBox(font, guiLeft + 7, guiTop + 19, 142, 18, OnlineDisplays.gui("url")));
 		url.setMaxLength(1024);
 		url.setValue(pv);
 		if(pv != null)
@@ -87,19 +86,19 @@ public class GuiDisplayConfig
 			int yBase = 52;
 			
 			pv = tx != null ? tx.getValue() : Float.toString(display.matrix.translateX);
-			tx = addWidget(new EditBox(font, guiLeft + xBase, guiTop + yBase, 40, 18, OnlineDisplays.gui("translate_x")));
+			tx = addRenderableWidget(new EditBox(font, guiLeft + xBase, guiTop + yBase, 40, 18, OnlineDisplays.gui("translate_x")));
 			tx.setMaxLength(10);
 			tx.setValue(pv);
 			tx.moveCursorToStart();
 			
 			pv = ty != null ? ty.getValue() : Float.toString(display.matrix.translateY);
-			ty = addWidget(new EditBox(font, guiLeft + xBase + 60, guiTop + yBase, 40, 18, OnlineDisplays.gui("translate_y")));
+			ty = addRenderableWidget(new EditBox(font, guiLeft + xBase + 60, guiTop + yBase, 40, 18, OnlineDisplays.gui("translate_y")));
 			ty.setMaxLength(10);
 			ty.setValue(pv);
 			ty.moveCursorToStart();
 			
 			pv = tz != null ? tz.getValue() : Float.toString(display.matrix.translateZ);
-			tz = addWidget(new EditBox(font, guiLeft + xBase + 120, guiTop + yBase, 40, 18, OnlineDisplays.gui("translate_z")));
+			tz = addRenderableWidget(new EditBox(font, guiLeft + xBase + 120, guiTop + yBase, 40, 18, OnlineDisplays.gui("translate_z")));
 			tz.setMaxLength(10);
 			tz.setValue(pv);
 			tz.moveCursorToStart();
@@ -110,19 +109,19 @@ public class GuiDisplayConfig
 			int yBase = 85;
 			
 			pv = rx != null ? rx.getValue() : Float.toString(display.matrix.rotateX);
-			rx = addWidget(new EditBox(font, guiLeft + xBase, guiTop + yBase, 40, 18, OnlineDisplays.gui("rotate_x")));
+			rx = addRenderableWidget(new EditBox(font, guiLeft + xBase, guiTop + yBase, 40, 18, OnlineDisplays.gui("rotate_x")));
 			rx.setMaxLength(10);
 			rx.setValue(pv);
 			rx.moveCursorToStart();
 			
 			pv = ry != null ? ry.getValue() : Float.toString(display.matrix.rotateY);
-			ry = addWidget(new EditBox(font, guiLeft + xBase + 60, guiTop + yBase, 40, 18, OnlineDisplays.gui("rotate_y")));
+			ry = addRenderableWidget(new EditBox(font, guiLeft + xBase + 60, guiTop + yBase, 40, 18, OnlineDisplays.gui("rotate_y")));
 			ry.setMaxLength(10);
 			ry.setValue(pv);
 			ry.moveCursorToStart();
 			
 			pv = rz != null ? rz.getValue() : Float.toString(display.matrix.rotateZ);
-			rz = addWidget(new EditBox(font, guiLeft + xBase + 120, guiTop + yBase, 40, 18, OnlineDisplays.gui("rotate_z")));
+			rz = addRenderableWidget(new EditBox(font, guiLeft + xBase + 120, guiTop + yBase, 40, 18, OnlineDisplays.gui("rotate_z")));
 			rz.setMaxLength(10);
 			rz.setValue(pv);
 			rz.moveCursorToStart();
@@ -133,43 +132,37 @@ public class GuiDisplayConfig
 			int yBase = 118;
 			
 			pv = sx != null ? sx.getValue() : Float.toString(display.matrix.scaleX);
-			sx = addWidget(new EditBox(font, guiLeft + xBase, guiTop + yBase, 40, 18, OnlineDisplays.gui("scale_x")));
+			sx = addRenderableWidget(new EditBox(font, guiLeft + xBase, guiTop + yBase, 40, 18, OnlineDisplays.gui("scale_x")));
 			sx.setMaxLength(10);
 			sx.setValue(pv);
 			sx.moveCursorToStart();
 			
 			pv = sy != null ? sy.getValue() : Float.toString(display.matrix.scaleY);
-			sy = addWidget(new EditBox(font, guiLeft + xBase + 60, guiTop + yBase, 40, 18, OnlineDisplays.gui("scale_y")));
+			sy = addRenderableWidget(new EditBox(font, guiLeft + xBase + 60, guiTop + yBase, 40, 18, OnlineDisplays.gui("scale_y")));
 			sy.setMaxLength(10);
 			sy.setValue(pv);
 			sy.moveCursorToStart();
 		}
 		
-		addWidget(new Button(guiLeft + xSize - 80 - 6, guiTop + ySize - 26, 80, 20, OnlineDisplays.gui("apply"), btn -> applyChanges()));
-		addWidget(new Button(guiLeft + 6, guiTop + ySize - 26, 80, 20, OnlineDisplays.gui("aspect"), btn -> applyAspectRatio()));
+		addRenderableWidget(Button.builder(OnlineDisplays.gui("apply"), btn -> applyChanges()).bounds(guiLeft + xSize - 80 - 6, guiTop + ySize - 26, 80, 20).build());
+		addRenderableWidget(Button.builder(OnlineDisplays.gui("aspect"), btn -> applyAspectRatio()).bounds(guiLeft + 6, guiTop + ySize - 26, 80, 20).build());
 		
-		addWidget(new ImageButton(guiLeft + 7 + 143, guiTop + 18, 20, 20,
+		addRenderableWidget(localFileBtn = new ImageButton(guiLeft + 7 + 143, guiTop + 18, 20, 20,
 				0, 0,
 				20,
 				OnlineDisplays.id("textures/gui/choose_file.png"),
 				40,
 				40,
-				btn -> beginSelectingLocalFile(), (btn, mat, mouseX, mouseY) ->
-		{
-			renderTooltip(mat, Arrays.asList(OnlineDisplays.gui("local_file").getVisualOrderText()), mouseX, mouseY, font);
-		}, OnlineDisplays.EMPTY_TXT
+				btn -> beginSelectingLocalFile(), OnlineDisplays.EMPTY_TXT
 		));
 		
-		emissiveToggle = (ImageButtonAccessor) addWidget(new ImageButton(guiLeft + 7, guiTop + 117, 20, 20,
+		emissiveToggle = (ImageButtonAccessor) addRenderableWidget(emissiveToggleBtn = new ImageButton(guiLeft + 7, guiTop + 117, 20, 20,
 				0, 0,
 				20,
 				OnlineDisplays.id("textures/gui/emissive.png"),
 				40,
 				40,
-				btn -> toggleEmissive(), (btn, mat, mouseX, mouseY) ->
-		{
-			renderTooltip(mat, Arrays.asList(OnlineDisplays.gui("emissive").getVisualOrderText()), mouseX, mouseY, font);
-		}, OnlineDisplays.EMPTY_TXT
+				btn -> toggleEmissive(), OnlineDisplays.EMPTY_TXT
 		));
 		updateEmissive();
 	}
@@ -239,7 +232,6 @@ public class GuiDisplayConfig
 	@Override
 	public void removed()
 	{
-		this.minecraft.keyboardHandler.setSendRepeatsToGui(false);
 		Network.sendToServer(new PacketRequestDisplaySync(display));
 		super.removed();
 	}
@@ -285,15 +277,17 @@ public class GuiDisplayConfig
 		blit(mat, guiLeft, guiTop, 0, 0, xSize, ySize);
 		font.draw(mat, getTitle(), guiLeft + 8, guiTop + 6, 0x222222);
 		
-		for(GuiEventListener w : children())
-			if(w instanceof Widget ww)
-				ww.render(mat, mouseX, mouseY, partial);
+		super.render(mat, mouseX, mouseY, partial);
 		
 		for(GuiEventListener w : children())
 			if(w instanceof AbstractWidget wg && w.isMouseOver(mouseX, mouseY))
 				renderTooltip(mat, Collections.singletonList(wg.getMessage().getVisualOrderText()), mouseX, mouseY, font);
 		
-		super.render(mat, mouseX, mouseY, partial);
+		if(emissiveToggleBtn.isHoveredOrFocused())
+			renderTooltip(mat, Arrays.asList(OnlineDisplays.gui("emissive").getVisualOrderText()), mouseX, mouseY, font);
+		
+		if(localFileBtn.isHoveredOrFocused())
+			renderTooltip(mat, Arrays.asList(OnlineDisplays.gui("local_file").getVisualOrderText()), mouseX, mouseY, font);
 	}
 	
 	@Override

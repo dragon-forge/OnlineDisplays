@@ -2,8 +2,6 @@ package org.zeith.onlinedisplays.client.render.ister;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
@@ -17,9 +15,11 @@ import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.model.data.ModelData;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.zeith.onlinedisplays.OnlineDisplays;
 import org.zeith.onlinedisplays.client.resources.data.DrawableAreaMetadataSection;
 import org.zeith.onlinedisplays.client.texture.*;
-import org.zeith.onlinedisplays.mixins.AtlasTextureAccessor;
 import org.zeith.onlinedisplays.mixins.BakedOverrideAccessor;
 
 import java.util.*;
@@ -45,7 +45,7 @@ public class DisplayISTER
 	
 	public Optional<DrawableAreaMetadataSection> getSectionFrom(TextureAtlasSprite tex)
 	{
-		ResourceLocation rl = ((AtlasTextureAccessor) tex.atlas()).callGetResourceLocation(tex.getName());
+		ResourceLocation rl = OnlineDisplays.id("textures/item/display.png");
 		DrawableAreaMetadataSection meta = null;
 		
 		if(metadataSectionMap.containsKey(rl))

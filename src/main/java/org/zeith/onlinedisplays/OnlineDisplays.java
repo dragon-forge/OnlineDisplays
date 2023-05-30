@@ -4,6 +4,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.dedicated.Settings;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraftforge.event.CreativeModeTabEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.common.Mod;
@@ -16,6 +18,7 @@ import org.zeith.hammerlib.core.adapter.LanguageAdapter;
 import org.zeith.hammerlib.util.CommonMessages;
 import org.zeith.onlinedisplays.ext.gif.ExtGIF;
 import org.zeith.onlinedisplays.ext.webp.ExtWebP;
+import org.zeith.onlinedisplays.init.BlocksOD;
 import org.zeith.onlinedisplays.proxy.ClientODProxy;
 import org.zeith.onlinedisplays.proxy.CommonODProxy;
 import org.zeith.onlinedisplays.util.ExtensionParser;
@@ -47,13 +50,23 @@ public class OnlineDisplays
 		
 		PROXY.construct();
 		LanguageAdapter.registerMod(MOD_ID);
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
+		var bus = FMLJavaModLoadingContext.get().getModEventBus();
+		bus.addListener(this::processIMC);
+		bus.addListener(this::registerTab);
 		
 		LOG.info("Launching dev build v3"); // FIXME: remove.
 		
 		getModSettings();
 		InterModComms.sendTo(MOD_ID, "add_ext", ExtWebP::new); // Add support for WebP
 		InterModComms.sendTo(MOD_ID, "add_ext", ExtGIF::new); // Add support for GIF
+	}
+	
+	private void registerTab(CreativeModeTabEvent.BuildContents e)
+	{
+		if(e.getTab() == CreativeModeTabs.REDSTONE_BLOCKS)
+		{
+			e.accept(BlocksOD.DISPLAY);
+		}
 	}
 	
 	public static OnlineDisplaysProperties getModSettings()
