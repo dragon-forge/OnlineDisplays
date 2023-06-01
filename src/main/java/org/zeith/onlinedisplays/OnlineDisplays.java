@@ -5,7 +5,9 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.dedicated.Settings;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.CreativeModeTabEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.common.Mod;
@@ -53,6 +55,7 @@ public class OnlineDisplays
 		var bus = FMLJavaModLoadingContext.get().getModEventBus();
 		bus.addListener(this::processIMC);
 		bus.addListener(this::registerTab);
+		MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
 		
 		LOG.info("Launching dev build v3"); // FIXME: remove.
 		
@@ -67,6 +70,11 @@ public class OnlineDisplays
 		{
 			e.accept(BlocksOD.DISPLAY);
 		}
+	}
+	
+	private void registerCommands(RegisterCommandsEvent e)
+	{
+		e.getDispatcher().register(CommandOnlineDisplay.create());
 	}
 	
 	public static OnlineDisplaysProperties getModSettings()
