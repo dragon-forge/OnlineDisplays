@@ -4,6 +4,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.dedicated.Settings;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.common.Mod;
@@ -48,12 +50,16 @@ public class OnlineDisplays
 		PROXY.construct();
 		LanguageAdapter.registerMod(MOD_ID);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
-		
-		LOG.info("Launching dev build v3"); // FIXME: remove.
+		MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
 		
 		getModSettings();
 		InterModComms.sendTo(MOD_ID, "add_ext", ExtWebP::new); // Add support for WebP
 		InterModComms.sendTo(MOD_ID, "add_ext", ExtGIF::new); // Add support for GIF
+	}
+	
+	private void registerCommands(RegisterCommandsEvent e)
+	{
+		e.getDispatcher().register(CommandOnlineDisplay.create());
 	}
 	
 	public static OnlineDisplaysProperties getModSettings()

@@ -2,8 +2,6 @@ package org.zeith.onlinedisplays.util;
 
 import org.zeith.onlinedisplays.client.texture.IDisplayableTexture;
 import org.zeith.onlinedisplays.client.texture.ITextureFactory;
-import org.zeith.onlinedisplays.ext.gif.decoders.ADecoder;
-import org.zeith.onlinedisplays.ext.gif.lib.GIFFrame;
 
 import java.util.Locale;
 import java.util.Optional;
@@ -26,8 +24,6 @@ public class ExtensionParser
 	
 	public Optional<IDisplayableTexture> loadImage(ImageData data, ITextureFactory factory)
 	{
-		GIFFrame[] frames = ADecoder.decode(data);
-		
 		return Optional.empty();
 	}
 	
