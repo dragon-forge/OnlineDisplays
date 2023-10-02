@@ -41,7 +41,7 @@ public class DisplayISTER
 	
 	public Optional<DrawableAreaMetadataSection> getSectionFrom(TextureAtlasSprite tex)
 	{
-		ResourceLocation rl = tex.atlasLocation();
+		ResourceLocation rl = tex.contents().name();
 		DrawableAreaMetadataSection meta = null;
 		
 		if(metadataSectionMap.containsKey(rl))
@@ -49,7 +49,13 @@ public class DisplayISTER
 		
 		try
 		{
-			meta = Minecraft.getInstance().getResourceManager().getResourceOrThrow(rl).metadata()
+			var rl2 = new ResourceLocation(rl.getNamespace(),
+					"textures/%s.png".formatted(rl.getPath())
+			);
+			
+			meta = Minecraft.getInstance().getResourceManager()
+					.getResourceOrThrow(rl2)
+					.metadata()
 					.getSection(DrawableAreaMetadataSection.SERIALIZER).orElseThrow();
 		} catch(Exception e)
 		{
