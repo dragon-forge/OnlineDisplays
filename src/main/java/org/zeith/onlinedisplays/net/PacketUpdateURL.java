@@ -3,8 +3,7 @@ package org.zeith.onlinedisplays.net;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.*;
 import org.zeith.hammerlib.net.*;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.onlinedisplays.client.gui.GuiDisplayConfig;
@@ -49,7 +48,7 @@ public class PacketUpdateURL
 		{
 			var level = sender.getLevel();
 			TileDisplay display = Cast.cast(level.getBlockEntity(pos), TileDisplay.class);
-			if(display != null)
+			if(display != null && display.canEdit(sender))
 			{
 				display.updateURL(url);
 			}

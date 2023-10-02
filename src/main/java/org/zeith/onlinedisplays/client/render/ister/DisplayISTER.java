@@ -1,26 +1,22 @@
 package org.zeith.onlinedisplays.client.render.ister;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
+import com.mojang.math.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ReloadableResourceManager;
-import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.model.data.ModelData;
 import org.zeith.onlinedisplays.client.resources.data.DrawableAreaMetadataSection;
 import org.zeith.onlinedisplays.client.texture.*;
-import org.zeith.onlinedisplays.mixins.AtlasTextureAccessor;
-import org.zeith.onlinedisplays.mixins.BakedOverrideAccessor;
+import org.zeith.onlinedisplays.mixins.*;
+import org.zeith.onlinedisplays.mixins.client.ItemOverridesAccessor;
 
 import java.util.*;
 
@@ -53,7 +49,8 @@ public class DisplayISTER
 		
 		try
 		{
-			meta = Minecraft.getInstance().getResourceManager().getResourceOrThrow(rl).metadata().getSection(DrawableAreaMetadataSection.SERIALIZER).orElseThrow();
+			meta = Minecraft.getInstance().getResourceManager().getResourceOrThrow(rl).metadata()
+					.getSection(DrawableAreaMetadataSection.SERIALIZER).orElseThrow();
 		} catch(Exception e)
 		{
 			e.printStackTrace();
@@ -70,7 +67,7 @@ public class DisplayISTER
 		ItemRenderer ir = mc.getItemRenderer();
 		
 		BakedModel isterModel = ir.getModel(stack, mc.level, mc.player, 0);
-		ImmutableList<ItemOverrides.BakedOverride> overrides = isterModel.getOverrides().getOverrides();
+		ItemOverrides.BakedOverride[] overrides = ((ItemOverridesAccessor) isterModel.getOverrides()).getOverrides();
 		
 		for(var override : overrides)
 		{
@@ -118,7 +115,8 @@ public class DisplayISTER
 			var builder = src.getBuffer(type);
 			
 			boolean gui = tt == ItemTransforms.TransformType.GUI;
-			boolean thirdPerson = tt == ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND || tt == ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
+			boolean thirdPerson = tt == ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND ||
+					tt == ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
 			
 			float normalX = 0.0F;
 			float normalY = gui ? -1.0F : 0.0F;

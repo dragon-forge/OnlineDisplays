@@ -20,3 +20,4 @@ gui.onlinedisplays.emissive=Toggle Emissive
 
 info.onlinedisplays.emissive.true=Emissive
 info.onlinedisplays.emissive.false=Non-Emissive
+info.onlinedisplays.no_access=You don't have access to modify this display.

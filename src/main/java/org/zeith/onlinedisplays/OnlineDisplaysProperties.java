@@ -4,10 +4,8 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.server.dedicated.Settings;
 import net.minecraftforge.common.util.SortedProperties;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.*;
+import java.nio.file.*;
 import java.util.Properties;
 
 public class OnlineDisplaysProperties
@@ -20,15 +18,19 @@ public class OnlineDisplaysProperties
 		super(props);
 	}
 	
+	@Override
 	public void store(Path path)
 	{
 		try(OutputStream outputstream = Files.newOutputStream(path))
 		{
 			SortedProperties.store(cloneProperties(), outputstream,
-					"Online Display properties\n\n" +
-							"To allow obtaining and interacting with the Display, set survival-mode to true.\n" +
-							"Please note, however, that making it accessible in survival is generally a BAD idea for public servers.\n" +
-							"I personally recommend turning it on ONLY on your personal server, with friends.\n"
+					"""
+							Online Display properties
+							
+							To allow obtaining and interacting with the Display, set survival-mode to true.
+							Please note, however, that making it accessible in survival is generally a BAD idea for public servers.
+							I personally recommend turning it on ONLY on your personal server, with friends.
+							"""
 			);
 		} catch(IOException ioexception)
 		{

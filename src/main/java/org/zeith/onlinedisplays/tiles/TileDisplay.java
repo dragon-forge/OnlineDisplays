@@ -6,26 +6,22 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.*;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import org.zeith.hammerlib.api.io.IAutoNBTSerializable;
-import org.zeith.hammerlib.api.io.NBTSerializable;
+import net.minecraftforge.api.distmarker.*;
+import org.zeith.hammerlib.api.io.*;
 import org.zeith.hammerlib.net.Network;
-import org.zeith.hammerlib.net.properties.PropertyBool;
-import org.zeith.hammerlib.net.properties.PropertyString;
+import org.zeith.hammerlib.net.properties.*;
 import org.zeith.hammerlib.tiles.TileSyncableTickable;
 import org.zeith.hammerlib.util.java.DirectStorage;
 import org.zeith.onlinedisplays.OnlineDisplays;
 import org.zeith.onlinedisplays.client.texture.IDisplayableTexture;
 import org.zeith.onlinedisplays.init.TilesOD;
 import org.zeith.onlinedisplays.level.LevelImageStorage;
-import org.zeith.onlinedisplays.net.PacketClearRequestFlag;
-import org.zeith.onlinedisplays.net.PacketRequestDisplaySync;
+import org.zeith.onlinedisplays.net.*;
 import org.zeith.onlinedisplays.util.ImageData;
 
 import java.util.Objects;
@@ -67,6 +63,16 @@ public class TileDisplay
 		dispatcher.registerProperty("hash", imageHash);
 		dispatcher.registerProperty("loaded", isLoaded);
 		dispatcher.registerProperty("emissive", isEmissive);
+	}
+	
+	public boolean canEdit(ServerPlayer player)
+	{
+		// we have an actual player
+		// either in creative, or the survival is enabled in configs
+		// that has no restrictions (some mods may mixin into this method to tell a player that they are unable to use a given block)
+		return player != null
+				&& (player.isCreative() || OnlineDisplays.getModSettings().survivalMode)
+				&& !player.blockActionRestricted(level, worldPosition, player.gameMode.getGameModeForPlayer());
 	}
 	
 	@Override

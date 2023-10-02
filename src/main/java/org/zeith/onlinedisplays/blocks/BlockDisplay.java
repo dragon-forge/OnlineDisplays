@@ -1,31 +1,26 @@
 package org.zeith.onlinedisplays.blocks;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.BlockParticleOption;
-import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.particles.*;
 import net.minecraft.nbt.*;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
-import net.minecraft.util.RandomSource;
-import net.minecraft.util.StringUtil;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.network.chat.*;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.*;
+import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.*;
 import net.minecraft.world.phys.shapes.*;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.*;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import org.zeith.hammerlib.api.blocks.ICustomBlockItem;
 import org.zeith.hammerlib.api.forge.BlockAPI;
@@ -39,8 +34,7 @@ import org.zeith.onlinedisplays.tiles.TileDisplay;
 import org.zeith.onlinedisplays.util.ImageData;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class BlockDisplay
@@ -108,7 +102,8 @@ public class BlockDisplay
 	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter reader, BlockPos pos, CollisionContext ctx)
 	{
-		if(reader instanceof Level lvl && !OnlineDisplays.getModSettings().survivalMode && lvl.isClientSide && !OnlineDisplays.PROXY.isCreative())
+		if(reader instanceof Level lvl && !OnlineDisplays.getModSettings().survivalMode && lvl.isClientSide &&
+				!OnlineDisplays.PROXY.isCreative())
 			return Shapes.empty();
 		return SHAPE;
 	}
@@ -139,17 +134,24 @@ public class BlockDisplay
 					break;
 				}
 		if(flag)
-			level.addParticle(new BlockParticleOption(ParticleTypes.BLOCK_MARKER, state), (double) pos.getX() + 0.5D, (double) pos.getY() + 0.5D, (double) pos.getZ() + 0.5D, 0.0D, 0.0D, 0.0D);
+			level.addParticle(new BlockParticleOption(ParticleTypes.BLOCK_MARKER, state),
+					(double) pos.getX() + 0.5D, (double) pos.getY() + 0.5D, (double) pos.getZ() + 0.5D, 0.0D, 0.0D, 0.0D
+			);
 	}
 	
 	@Override
 	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult res)
 	{
-		if(!level.isClientSide)
+		if(!level.isClientSide && player instanceof ServerPlayer sp)
 		{
 			TileDisplay tile = Cast.cast(level.getBlockEntity(pos), TileDisplay.class);
 			if(tile != null)
-				Network.sendTo(player, new PacketOpenDisplayConfig(tile));
+			{
+				if(tile.canEdit(sp))
+					Network.sendTo(player, new PacketOpenDisplayConfig(tile));
+				else
+					sp.sendSystemMessage(OnlineDisplays.info("no_access").withStyle(ChatFormatting.RED), true);
+			}
 		}
 		return InteractionResult.SUCCESS;
 	}

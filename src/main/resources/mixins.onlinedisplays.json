@@ -12,6 +12,7 @@
     "ImageButtonAccessor"
   ],
   "client": [
+    "client.ItemOverridesAccessor"
   ],
   "server": [
 	]

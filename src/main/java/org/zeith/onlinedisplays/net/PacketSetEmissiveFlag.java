@@ -44,7 +44,7 @@ public class PacketSetEmissiveFlag
 		if(sender != null)
 		{
 			TileDisplay d = Cast.cast(sender.level.getBlockEntity(pos), TileDisplay.class);
-			if(d != null)
+			if(d != null && d.canEdit(sender))
 				d.isEmissive.set(emissive);
 		}
 	}

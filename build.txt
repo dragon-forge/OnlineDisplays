@@ -2,11 +2,11 @@
 mod_id=onlinedisplays
 archive_name=OnlineDisplays
 mod_name=Online Displays
-mod_version=19.2.5
+mod_version=19.2.6
 
 # Maven Info
 maven_group=org.zeith.onlinedisplays
-hl_version=19.3.57
+hl_version=19.3.73
 
 # MC Info
 mc_version=1.19.2

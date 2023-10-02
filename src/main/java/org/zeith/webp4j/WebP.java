@@ -4,10 +4,8 @@ import org.zeith.hammerlib.util.java.OSArch;
 import org.zeith.onlinedisplays.OnlineDisplays;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
-import java.util.Optional;
+import java.nio.file.*;
+import java.util.*;
 
 public class WebP
 {
@@ -77,6 +75,7 @@ public class WebP
 			String[] command = {
 					webpPath,
 					webpFile.getAbsoluteFile().getCanonicalPath(),
+					"-mt",
 					"-o",
 					pngFile.getAbsoluteFile().getCanonicalPath()
 			};

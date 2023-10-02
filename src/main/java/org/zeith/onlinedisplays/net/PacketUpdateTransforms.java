@@ -47,7 +47,7 @@ public class PacketUpdateTransforms
 		{
 			var level = sender.getLevel();
 			TileDisplay display = Cast.cast(level.getBlockEntity(pos), TileDisplay.class);
-			if(display != null)
+			if(display != null && display.canEdit(sender))
 			{
 				display.matrix.deserializeNBT(matrix.serializeNBT());
 				new PacketRequestDisplaySync(display).serverExecute(ctx);
