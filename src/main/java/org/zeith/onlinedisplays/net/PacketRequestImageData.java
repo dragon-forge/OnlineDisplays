@@ -1,14 +1,12 @@
 package org.zeith.onlinedisplays.net;
 
 import net.minecraft.network.FriendlyByteBuf;
-import org.zeith.hammerlib.net.IPacket;
-import org.zeith.hammerlib.net.PacketContext;
+import org.zeith.hammerlib.net.*;
 import org.zeith.onlinedisplays.OnlineDisplays;
 import org.zeith.onlinedisplays.level.LevelImageStorage;
 import org.zeith.onlinedisplays.util.ImageData;
 
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 
 public class PacketRequestImageData
 		implements IPacket
@@ -46,7 +44,7 @@ public class PacketRequestImageData
 		var sender = ctx.getSender();
 		if(sender != null)
 		{
-			var level = sender.getLevel();
+			var level = sender.serverLevel();
 			
 			ImageData image = LevelImageStorage.get(level).load(hash);
 			if(image != null)

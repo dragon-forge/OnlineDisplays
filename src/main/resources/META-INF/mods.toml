@@ -1,40 +1,41 @@
 modLoader = "javafml"
-loaderVersion = "[43,)"
-issueTrackerURL = "https://github.com/dragon-forge/OnlineDisplays/issues"
-license = "All rights reserved"
-
+loaderVersion = "${forge_version_range}"
+issueTrackerURL = "${issue_tracker_url}"
+license = "${mod_license}"
 [[mods]]
-modId = "onlinedisplays"
-version = "${file.jarVersion}"
-displayName = "Online Displays"
-updateJSONURL = "https://api.modrinth.com/updates/bhEwCNbH/forge_updates.json"
-displayURL = "http://dccg.herokuapp.com/api/fmlhp/785509"
-authors = "Zeitheron"
-logoFile = "display_logo.png"
+modId = "${mod_id}"
+version = "${mod_version}"
+displayName = "${mod_name}"
+updateJSONURL = "https://api.modrinth.com/updates/${modrinth_project}/forge_updates.json"
+displayURL = "https://modrinth.com/mod/${modrinth_project}"
+logoFile = "${mod_id}.png"
+credits = "${mod_credits}"
+authors = "${mod_authors}"
+description = '''${mod_description}'''
 
-description = '''
-This mod is intended for Creative Mode use, but can be also used in Survival Mode, if chosen to.
-Online Displays allows putting up an image, positioning, rotating and scaling it to your exact need.
-Additionally, the lighting of it may be disabled, essentially rendering it as "emissive*"
-'''
+# Display Test controls the display for your mod in the server connection screen
+# MATCH_VERSION means that your mod will cause a red X if the versions on client and server differ. This is the default behaviour and should be what you choose if you have server and client elements to your mod.
+# IGNORE_SERVER_VERSION means that your mod will not cause a red X if it's present on the server but not on the client. This is what you should use if you're a server only mod.
+# IGNORE_ALL_VERSION means that your mod will not cause a red X if it's present on the client or the server. This is a special case and should only be used if your mod has no server component.
+# NONE means that no display test is set on your mod. You need to do this yourself, see IExtensionPoint.DisplayTest for more information. You can define any scheme you wish with this value.
+# IMPORTANT NOTE: this is NOT an instruction as to which environments (CLIENT or DEDICATED SERVER) your mod loads on. Your mod should load (and maybe do nothing!) whereever it finds itself.
+displayTest = "MATCH_VERSION"
 
-[[dependencies.onlinedisplays]]
+[[dependencies.${ mod_id }]]
 modId = "forge"
 mandatory = true
-versionRange = "[43,)"
+versionRange = "${forge_version_range}"
 ordering = "NONE" # NONE/BEFORE/AFTER
 side = "BOTH"
-
-[[dependencies.onlinedisplays]]
+[[dependencies.${ mod_id }]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.19.2,1.20)"
+versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
-
-[[dependencies.onlinedisplays]]
+[[dependencies.${ mod_id }]]
 modId = "hammerlib"
 mandatory = true
-versionRange = "[19.3.57,)"
+versionRange = "[${hl_version},)"
 ordering = "NONE"
 side = "BOTH"

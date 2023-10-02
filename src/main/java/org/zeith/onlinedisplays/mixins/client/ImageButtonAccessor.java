@@ -1,8 +1,7 @@
-package org.zeith.onlinedisplays.mixins;
+package org.zeith.onlinedisplays.mixins.client;
 
 import net.minecraft.client.gui.components.ImageButton;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Mutable;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(ImageButton.class)

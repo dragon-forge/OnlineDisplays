@@ -1,25 +1,23 @@
 package org.zeith.onlinedisplays;
 
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.dedicated.Settings;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.InterModComms;
+import net.minecraftforge.event.*;
+import net.minecraftforge.fml.*;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.*;
 import org.zeith.hammerlib.core.adapter.LanguageAdapter;
 import org.zeith.hammerlib.util.CommonMessages;
 import org.zeith.onlinedisplays.ext.gif.ExtGIF;
 import org.zeith.onlinedisplays.ext.webp.ExtWebP;
-import org.zeith.onlinedisplays.proxy.ClientODProxy;
-import org.zeith.onlinedisplays.proxy.CommonODProxy;
+import org.zeith.onlinedisplays.init.BlocksOD;
+import org.zeith.onlinedisplays.proxy.*;
 import org.zeith.onlinedisplays.util.ExtensionParser;
 
 import java.io.File;
@@ -45,16 +43,30 @@ public class OnlineDisplays
 	public OnlineDisplays()
 	{
 		CommonMessages.printMessageOnIllegalRedistribution(OnlineDisplays.class,
-				LOG, "OnlineDisplays", "https://www.curseforge.com/minecraft/mc-mods/online-displays");
+				LOG, "OnlineDisplays", "https://www.curseforge.com/minecraft/mc-mods/online-displays"
+		);
 		
 		PROXY.construct();
 		LanguageAdapter.registerMod(MOD_ID);
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
+		
+		var mbus = FMLJavaModLoadingContext.get().getModEventBus();
+		
+		mbus.addListener(this::processIMC);
+		mbus.addListener(this::populateCreative);
+		
 		MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
 		
 		getModSettings();
 		InterModComms.sendTo(MOD_ID, "add_ext", ExtWebP::new); // Add support for WebP
 		InterModComms.sendTo(MOD_ID, "add_ext", ExtGIF::new); // Add support for GIF
+	}
+	
+	public void populateCreative(BuildCreativeModeTabContentsEvent e)
+	{
+		if(e.getTabKey() == CreativeModeTabs.REDSTONE_BLOCKS)
+		{
+			e.accept(BlocksOD.DISPLAY);
+		}
 	}
 	
 	private void registerCommands(RegisterCommandsEvent e)
@@ -85,7 +97,8 @@ public class OnlineDisplays
 				Object o = msg.getMessageSupplier().get();
 				if(o instanceof ExtensionParser parser)
 				{
-					LOG.info("Registering extension parser for ." + parser.extension + " files from " + msg.getSenderModId());
+					LOG.info("Registering extension parser for ." + parser.extension + " files from " +
+							msg.getSenderModId());
 					EXTENSION_PARSERS.put(parser.extension, parser);
 				}
 			}

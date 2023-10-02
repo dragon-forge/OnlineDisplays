@@ -1,17 +1,31 @@
 # Mod Info
+mod_version=20.1.1
+build_candidate=false
+
+# Mod dependencies (jei is not a requirement, but HammerLib is)
+hl_version=20.1.16
+jei_version=15.2.0.22
+
+# Persistent mod info
 mod_id=onlinedisplays
 archive_name=OnlineDisplays
 mod_name=Online Displays
-mod_version=19.2.6
+mod_description=This mod is intended for Creative Mode use, but can be also used in Survival Mode, if chosen to.\nOnline Displays allows putting up an image, positioning, rotating and scaling it to your exact need.\nAdditionally, the lighting of it may be disabled, essentially rendering it as "emissive*"
+mod_authors=Zeitheron
+mod_license=All Rights Reserved
+mod_credits=None
+issue_tracker_url=https://github.com/dragon-forge/OnlineDisplays/issues
+
+# MC Info
+mc_version=1.20.1
+mc_range=[1.20.1,1.21)
+forge_version=47.1.76
+forge_range=[47,)
+mc_user=Zeitheron,63fa4c485b5640809727d5d59663e603
 
 # Maven Info
 maven_group=org.zeith.onlinedisplays
-hl_version=19.3.73
-
-# MC Info
-mc_version=1.19.2
-forge_version=43.2.0
-mc_user=Zeitheron,63fa4c485b5640809727d5d59663e603
+maven_url=file:///SERVER//Maven
 
 # Misc Info
 java=17
@@ -19,6 +33,9 @@ java=17
 # Project ID on CurseForge
 cf_project=785509
 modrinth_project=bhEwCNbH
+
+# alpha, beta, release
+release_type=alpha
 
 # List of mods separated by ;
 # If a specific mod for one platform is needed, @m: or @c: prefixes are used.
@@ -29,6 +46,3 @@ required_mods=hammer-lib;
 optional_mods=
 incompatible_mods=
 embedded_mods=
-
-# alpha, beta, release
-release_type=release

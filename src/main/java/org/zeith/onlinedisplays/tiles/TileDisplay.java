@@ -1,7 +1,7 @@
 package org.zeith.onlinedisplays.tiles;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -240,9 +240,9 @@ public class TileDisplay
 		{
 			pose.translate(translateX, translateY, translateZ);
 			
-			pose.mulPose(Vector3f.YP.rotationDegrees(rotateY));
-			pose.mulPose(Vector3f.XP.rotationDegrees(rotateX));
-			pose.mulPose(Vector3f.ZP.rotationDegrees(rotateZ));
+			pose.mulPose(Axis.YP.rotationDegrees(rotateY));
+			pose.mulPose(Axis.XP.rotationDegrees(rotateX));
+			pose.mulPose(Axis.ZP.rotationDegrees(rotateZ));
 			
 			pose.scale(scaleX, scaleY, 1F);
 		}

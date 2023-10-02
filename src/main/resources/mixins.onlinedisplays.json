@@ -6,14 +6,13 @@
   "target": "@env(DEFAULT)",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "AtlasTextureAccessor",
-    "BakedOverrideAccessor",
-    "DimensionDataStorageAccessor",
-    "ImageButtonAccessor"
+    "DimensionDataStorageAccessor"
   ],
   "client": [
+    "client.BakedOverrideAccessor",
+    "client.ImageButtonAccessor",
     "client.ItemOverridesAccessor"
   ],
   "server": [
-	]
+  ]
 }

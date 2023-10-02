@@ -40,7 +40,7 @@ public class PacketRequestDisplaySync
 		var sender = ctx.getSender();
 		if(sender != null)
 		{
-			var level = sender.getLevel();
+			var level = sender.level();
 			TileDisplay display = Cast.cast(level.getBlockEntity(pos), TileDisplay.class);
 			if(display != null)
 			{

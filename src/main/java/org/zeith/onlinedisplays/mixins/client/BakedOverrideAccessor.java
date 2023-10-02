@@ -1,4 +1,4 @@
-package org.zeith.onlinedisplays.mixins;
+package org.zeith.onlinedisplays.mixins.client;
 
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.resources.model.BakedModel;

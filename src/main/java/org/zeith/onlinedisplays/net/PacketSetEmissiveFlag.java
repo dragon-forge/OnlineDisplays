@@ -43,7 +43,7 @@ public class PacketSetEmissiveFlag
 		var sender = ctx.getSender();
 		if(sender != null)
 		{
-			TileDisplay d = Cast.cast(sender.level.getBlockEntity(pos), TileDisplay.class);
+			TileDisplay d = Cast.cast(sender.level().getBlockEntity(pos), TileDisplay.class);
 			if(d != null && d.canEdit(sender))
 				d.isEmissive.set(emissive);
 		}

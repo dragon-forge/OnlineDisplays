@@ -16,7 +16,7 @@ import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.*;
 import net.minecraft.world.phys.shapes.*;
@@ -24,7 +24,6 @@ import net.minecraftforge.api.distmarker.*;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import org.zeith.hammerlib.api.blocks.ICustomBlockItem;
 import org.zeith.hammerlib.api.forge.BlockAPI;
-import org.zeith.hammerlib.core.adapter.CreativeTabAdapter;
 import org.zeith.hammerlib.net.Network;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.onlinedisplays.OnlineDisplays;
@@ -44,7 +43,6 @@ public class BlockDisplay
 	public BlockDisplay(Properties props)
 	{
 		super(props);
-		CreativeTabAdapter.bindTab(this, CreativeModeTab.TAB_REDSTONE);
 	}
 	
 	VoxelShape SHAPE = box(2, 2, 2, 14, 14, 14);
@@ -93,7 +91,7 @@ public class BlockDisplay
 	}
 	
 	@Override
-	public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder)
+	public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder)
 	{
 		TileDisplay display = Cast.cast(builder.getParameter(LootContextParams.BLOCK_ENTITY), TileDisplay.class);
 		return Collections.singletonList(save(display));

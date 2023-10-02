@@ -1,11 +1,9 @@
 package org.zeith.onlinedisplays.proxy;
 
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.*;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.LogicalSide;
-import org.zeith.hammerlib.net.Network;
-import org.zeith.hammerlib.net.PacketContext;
+import org.zeith.hammerlib.net.*;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.onlinedisplays.OnlineDisplays;
 import org.zeith.onlinedisplays.api.IImageDataContainer;
@@ -65,7 +63,7 @@ public class CommonODProxy
 				ServerPlayer sender = ctx.getSender();
 				if(sender != null)
 				{
-					var be = sender.level.getBlockEntity(session.getPosition());
+					var be = sender.level().getBlockEntity(session.getPosition());
 					TileDisplay display = Cast.cast(be, TileDisplay.class);
 					if(display != null)
 					{

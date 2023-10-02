@@ -5,6 +5,7 @@ import net.minecraft.server.dedicated.Settings;
 import net.minecraftforge.common.util.SortedProperties;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.Properties;
 
@@ -21,9 +22,9 @@ public class OnlineDisplaysProperties
 	@Override
 	public void store(Path path)
 	{
-		try(OutputStream outputstream = Files.newOutputStream(path))
+		try(var out = new OutputStreamWriter(Files.newOutputStream(path), StandardCharsets.UTF_8))
 		{
-			SortedProperties.store(cloneProperties(), outputstream,
+			SortedProperties.store(cloneProperties(), out,
 					"""
 							Online Display properties
 							

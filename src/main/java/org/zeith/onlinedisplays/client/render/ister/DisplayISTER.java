@@ -1,23 +1,23 @@
 package org.zeith.onlinedisplays.client.render.ister;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.block.model.*;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.*;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.*;
 import net.minecraftforge.client.model.data.ModelData;
+import org.joml.*;
 import org.zeith.onlinedisplays.client.resources.data.DrawableAreaMetadataSection;
 import org.zeith.onlinedisplays.client.texture.*;
-import org.zeith.onlinedisplays.mixins.*;
-import org.zeith.onlinedisplays.mixins.client.ItemOverridesAccessor;
+import org.zeith.onlinedisplays.mixins.client.*;
 
+import java.lang.Math;
 import java.util.*;
 
 public class DisplayISTER
@@ -41,7 +41,7 @@ public class DisplayISTER
 	
 	public Optional<DrawableAreaMetadataSection> getSectionFrom(TextureAtlasSprite tex)
 	{
-		ResourceLocation rl = ((AtlasTextureAccessor) tex.atlas()).callGetResourceLocation(tex.getName());
+		ResourceLocation rl = tex.atlasLocation();
 		DrawableAreaMetadataSection meta = null;
 		
 		if(metadataSectionMap.containsKey(rl))
@@ -85,7 +85,7 @@ public class DisplayISTER
 	}
 	
 	@Override
-	public void renderByItem(ItemStack stack, ItemTransforms.TransformType tt, PoseStack mat, MultiBufferSource src, int uv2, int overlay)
+	public void renderByItem(ItemStack stack, ItemDisplayContext tt, PoseStack mat, MultiBufferSource src, int uv2, int overlay)
 	{
 		TextureAtlasSprite tex = renderAllOverrides(stack, mat, src, uv2, overlay);
 		
@@ -114,9 +114,9 @@ public class DisplayISTER
 			RenderType type = RenderType.entityTranslucent(tx.getPath(System.currentTimeMillis()));
 			var builder = src.getBuffer(type);
 			
-			boolean gui = tt == ItemTransforms.TransformType.GUI;
-			boolean thirdPerson = tt == ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND ||
-					tt == ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
+			boolean gui = tt == ItemDisplayContext.GUI;
+			boolean thirdPerson = tt == ItemDisplayContext.THIRD_PERSON_LEFT_HAND ||
+					tt == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
 			
 			float normalX = 0.0F;
 			float normalY = gui ? -1.0F : 0.0F;
