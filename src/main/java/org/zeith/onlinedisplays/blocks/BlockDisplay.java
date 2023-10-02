@@ -165,9 +165,9 @@ public class BlockDisplay
 	
 	@Nullable
 	@Override
-	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level p_153212_, BlockState p_153213_, BlockEntityType<T> p_153214_)
+	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState p_153213_, BlockEntityType<T> p_153214_)
 	{
-		return BlockAPI.ticker();
+		return BlockAPI.ticker(level);
 	}
 	
 	@Override
